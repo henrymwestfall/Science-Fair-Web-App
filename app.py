@@ -6,11 +6,7 @@ from flask import Flask, render_template, request, json
 from simulation import *
 
 
-app = Flask(__name__)
-agents_by_key = {}
-
-
-def api_key_generator(length=20):
+def api_key_generator(length=6):
     used = set()
     while True:
         key = ""
@@ -32,27 +28,32 @@ with open("parameters.json") as f:
 sim = Simulation(params)
 sim.start()
 
+app = Flask(__name__)
+agents_by_key = {next(api_keys): agent for agent in sim.get_all_agents()}
 
-@app.route("/get-client-api-key", methods=["GET"])
+
 def get_client_api_key():
     for key, agent in agents_by_key.items():
         if agent.awaiting_client:
             agent.awaiting_client = False
-            return json.dumps({"key": key})
+            return key
 
 
-@app.route("/get-feed/<key>", methods=["GET"])
-def get_feed(key=None):
+@app.route("/")
+def index():
+    return render_template("index.html", api_key=get_client_api_key())
+
+
+@app.route("/state/<key>", methods=["GET"])
+def get_state(key=None):
     agent = agents_by_key.get(key)
     if agent != None:
-        return json.dumps({"messages": agent.get_feed()})
-
-
-@app.route("/get-score/<key>", methods=["GET"])
-def get_score(key=None):
-    agent = agents_by_key.get(key)
-    if agent != None:
-        return json.dumps({"score": agent.score})
+        return json.dumps({
+            "error": None,
+            "score": agent.score,
+            "issues": sim.issues,
+            "messages": agent.get_feed()
+        })
 
 
 @app.route("/send-message/<key>", methods=["POST"])

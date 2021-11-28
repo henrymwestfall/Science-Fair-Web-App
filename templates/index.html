@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Social Network</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/main.css') }}">
+        
+        <script>
+            const apiKey = '{{ api_key }}'
+        </script>
+
+        <script src="{{ url_for('static', filename='main.js') }}"></script>
+    </head>
+
+    <body>
+        <div id="score">0</div>
+
+        <div id="belief-state-expression"></div>
+
+        <table id="feed">
+            <tr>
+                <th>User</th>
+                <th>Latest Post</th>
+                <th>Followers</th>
+            </tr>
+        </table>
+    </body>
+</html>

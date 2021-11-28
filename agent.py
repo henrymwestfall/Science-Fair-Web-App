@@ -1,9 +1,10 @@
 import numpy as np
 
 class Agent:
-    def __init__(self, sim, node_id: int):
+    def __init__(self, sim, node_id: int, name: str):
         self.parent_sim = sim
         self.node_id = node_id
+        self.name = name
 
         self.score = 0
         self.approval = 1

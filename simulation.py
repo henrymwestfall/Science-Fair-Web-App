@@ -12,14 +12,19 @@ from agent import *
 class Simulation:
     def __init__(self, params):
         self.params = params
+        if self.params["seed"] == None:
+            self.rng = np.random.default_rng()
+        else:
+            self.rng = np.random.default_rng(self.params["seed"])
 
         self.agents_by_id = []
         self.size = self.params["size"]
         self.graph: nx.DiGraph = nx.scale_free_graph(self.size)
         self.graphs = [self.graph.copy()]
 
+        fake_names = self.fake_name_generator()
         for node in self.graph.nodes:
-            agent = Agent(self, node)
+            agent = Agent(self, node, next(fake_names))
             agent.approval = self.params["v0"]
             self.agents_by_id.append(agent)
 
@@ -29,6 +34,20 @@ class Simulation:
         self.length = self.params["length"]
         self.step = 0
         self.min_step_time = 30 # seconds
+
+        # randomly generate issues as pairs of letters
+        self.num_issues = min(self.params["issues"], 13)
+        self.issues = []
+        alphabet = [chr(v) for v in range(65, 91)] # all capital letters
+        issue_choices = self.rng.choice(alphabet, size=self.num_issues * 2, replace=False)
+        issue = ["blank", "blank"]
+        for stance in issue_choices:
+            if issue[0] == "blank":
+                issue[0] = stance
+            elif issue[1] == "blank":
+                issue[1] = stance
+                self.issues.append(tuple(issue))
+                issue = ["blank", "blank"]
 
 
     def start(self) -> None:
@@ -100,7 +119,7 @@ class Simulation:
         # select new influeners
         for _ in range(rewire_count):
             ps = [choice_weights[possibility] / n for possibility in possibities]
-            selection = np.random.choice(possibities, ps)
+            selection = self.rng.choice(possibities, ps)
             possibities.remove(selection)
             n -= 1
 
@@ -152,6 +171,27 @@ class Simulation:
         if self.graph.has_edge(node_a, node_b):
             self.get_agent(node_a).influencers.remove(self.get_agent(node_b))
             self.graph.remove_edge(node_a, node_b)
+
+
+    def fake_name_generator(self):
+        possible_first_names = []
+        possible_surnames = []
+
+        with open("names/firstnames.txt") as f:
+            possible_first_names = f.readlines()
+
+        with open("names/surnames.txt") as f:
+            possible_surnames = f.readlines()
+        
+        used_names = set()
+
+        while True:
+            name = self.rng.choice(possible_first_names) \
+                + " " + self.rng.choice(possible_surnames)
+
+            if not name in used_names:
+                used_names.add(name)
+                yield name
 
 
     def plot_graph(self):
