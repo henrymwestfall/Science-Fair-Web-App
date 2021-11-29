@@ -3,10 +3,6 @@
     <head>
         <title>Social Network</title>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/main.css') }}">
-        
-        <script>
-            const apiKey = '{{ api_key }}'
-        </script>
 
         <script src="{{ url_for('static', filename='main.js') }}"></script>
     </head>
@@ -16,12 +12,15 @@
 
         <div id="belief-state-expression"></div>
 
-        <table id="feed">
-            <tr>
-                <th>User</th>
-                <th>Latest Post</th>
-                <th>Followers</th>
-            </tr>
-        </table>
+        <div id="feed-div">
+            <table id="feed"></table>
+        </div>
+
+        <div>
+            <input type="checkbox" id="ready" name="ready">
+            <label for="ready">Ready!</label>
+        </div>
+
+        <button onclick="clearAPIkey()">Reset API Key</button>
     </body>
 </html>

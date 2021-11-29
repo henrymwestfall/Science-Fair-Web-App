@@ -161,6 +161,10 @@ class Simulation:
             for node in self.graph.successors(agent.node_id)]
 
     
+    def get_out_degree(self, agent: Agent) -> int:
+        return self.graph.out_degree(agent.node_id)
+
+    
     def create_edge(self, node_a: int, node_b: int) -> None:
         self.get_agent(node_a).add_influencer(self.get_agent(node_b))
         if not self.graph.has_edge(node_a, node_b):

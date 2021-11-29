@@ -41,7 +41,12 @@ def get_client_api_key():
 
 @app.route("/")
 def index():
-    return render_template("index.html", api_key=get_client_api_key())
+    return render_template("index.html")
+
+
+@app.route("/new-apikey", methods=["GET"])
+def get_api_key():
+    return json.dumps({"apiKey": get_client_api_key()})
 
 
 @app.route("/state/<key>", methods=["GET"])
@@ -52,8 +57,10 @@ def get_state(key=None):
             "error": None,
             "score": agent.score,
             "issues": sim.issues,
-            "messages": agent.get_feed()
+            "messages": agent.get_feed(),
+            "outDegree": sim.get_out_degree(agent)
         })
+    return json.dumps({"error": "keyNotFound"})
 
 
 @app.route("/send-message/<key>", methods=["POST"])
@@ -61,7 +68,8 @@ def send_message(key=None):
     agent = agents_by_key.get(key)
     message = request.form.get("message")
     if agent != None and message != None:
-        agent.set_messages(message)
+        agent.express_belief_state(message)
+    return json.dumps({"error": None})
 
 
 @app.route("/unfollow-influencer/<key>", methods=["POST"])
@@ -70,3 +78,4 @@ def unfollow_influencer(key=None):
     influencer_id = request.form.get("influencer-id")
     if agent != None and influencer_id != None:
         agent.unfollow_influencer(influencer_id)
+    return json.dumps({})

@@ -1,3 +1,20 @@
-span{
-    margin-right: 10%;
+body {
+    text-align: center;
+}
+
+table {
+    width: 100%;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+#belief-state-expression {
+    display: flex;
+    justify-content: space-around;
+}
+
+#feed-div {
+    height: 30%;
 }
