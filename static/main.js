@@ -68,9 +68,12 @@ function getMessage() {
 function checkReady() {
     let readyElem = document.getElementById("ready")
     if (readyElem.checked) {
+        let data = new FormData()
+        data.append("data", JSON.stringify({"message": getMessage()}))
+
         fetch(`/send-message/${apiKey}`, {
             method: "POST",
-            body: {"message": getMessage()}
+            body: data
         }).then((response) => {
             response.text().then((text) => {
                 const error = JSON.parse(text).error
@@ -100,6 +103,8 @@ async function update() {
     if (feedTable.children.length == 0) setUpFeedTableRows(state.outDegree)
 
     checkReady()
+
+    if (state.messages.length > 0) alert ("FINALLY GODDAMMIT")
 }
 
 
@@ -122,5 +127,5 @@ window.onload = () => {
     beliefStateInputDiv = document.getElementById("belief-state-expression")
 
     document.getElementById("ready").checked = false
-    window.setInterval(main, 250)
+    window.setInterval(main, 500)
 }

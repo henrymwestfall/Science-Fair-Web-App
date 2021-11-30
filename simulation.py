@@ -33,7 +33,7 @@ class Simulation:
 
         self.length = self.params["length"]
         self.step = 0
-        self.min_step_time = 30 # seconds
+        self.min_step_time = 10 # seconds
 
         # randomly generate issues as pairs of letters
         self.num_issues = min(self.params["issues"], 13)
@@ -67,12 +67,15 @@ class Simulation:
     def process_step(self) -> None:
         if self.step != 0:
             print("Updating approvals...")
-            self.update_approvals()
+            if self.step != 1: # expressed belief states don't exist yet
+                self.update_approvals()
             print("Syncing belief states...")
             for agent in self.agents_by_id:
                 agent.sync_belief_state()
             print("Sending messages...")
             self.send_all_messages()
+
+            self.idle_agents.clear()
         
         # wait for agents to express belief states
         print("Waiting for clients...")
@@ -129,7 +132,8 @@ class Simulation:
     def send_all_messages(self) -> None:
         for agent in self.agents_by_id:
             for follower in self.get_followers_of(agent):
-                follower.receive_message(agent.expressed_belief_state)
+                follower.receive_message(np.array(agent.expressed_belief_state))
+                print(follower.get_feed())
 
     
     def is_idle(self, agent: Agent) -> bool:

@@ -9,8 +9,8 @@ class Agent:
         self.score = 0
         self.approval = 1
 
-        self.expressed_belief_state = []
-        self.next_expressed_belief_state = []
+        self.expressed_belief_state = np.array([])
+        self.next_expressed_belief_state = np.array([])
         self.feed = []
 
         self.influencers = []
@@ -26,7 +26,7 @@ class Agent:
 
     
     def receive_message(self, message: np.ndarray) -> None:
-        self.feed.append(list(message))
+        self.feed.append(message.tolist())
 
 
     def add_influencer(self, influencer) -> None:
@@ -45,4 +45,4 @@ class Agent:
 
     def sync_belief_state(self) -> None:
         self.expressed_belief_state = self.next_expressed_belief_state
-        self.next_expressed_belief_state.clear()
+        self.next_expressed_belief_state = np.zeros(self.next_expressed_belief_state.shape)

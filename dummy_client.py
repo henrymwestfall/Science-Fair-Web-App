@@ -1,3 +1,4 @@
+from math import exp
 import requests
 import time
 import random
@@ -13,11 +14,7 @@ class DummyClient:
     
     def run(self):
         state = self.get("/state")
-        messages = state["messages"]
-        if len(messages) > 0:
-            expressed_state = messages[0]
-        else:
-            expressed_state = [random.choice([-1, 1]) for _ in range(len(state["issues"]))]
+        expressed_state = [random.choice([-1, 1]) for _ in state["issues"]]
         self.post("/send-message", {"message": expressed_state})
 
 
@@ -26,13 +23,13 @@ class DummyClient:
 
     
     def post(self, req_url: str, data: dict):
-        requests.post(self.url + req_url + "/" + self.key, data=data)
+        requests.post(self.url + req_url + "/" + self.key, data={"data": json.dumps(data)})
 
 
 if __name__ == "__main__":
-    server_url = input("Server URL: ")
-    num_clients = int(input("Number of Clients: "))
-    random_seed = int(input("Seed: "))
+    server_url = "http://localhost:5000"#input("Server URL: ")
+    num_clients = 24#int(input("Number of Clients: "))
+    random_seed = 42#int(input("Seed: "))
 
     random.seed(random_seed)
 
