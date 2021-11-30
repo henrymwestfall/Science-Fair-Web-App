@@ -1,7 +1,10 @@
-var scoreDiv
+var followerCountP
 var feedTable
 var beliefStateInputDiv
 var apiKey = ""
+
+var hasSetUpBeliefStateInputDiv = false
+var hasSetUpFeedTableRows = false
 
 
 function setUpBeliefStateInputDiv(issues) {
@@ -28,6 +31,8 @@ function setUpBeliefStateInputDiv(issues) {
 
         beliefStateInputDiv.appendChild(select)
     }
+
+    hasSetUpBeliefStateInputDiv = true
 }
 
 
@@ -52,6 +57,8 @@ function setUpFeedTableRows(count) {
         }
         feedTable.appendChild(row)
     }
+
+    hasSetUpFeedTableRows = true
 }
 
 
@@ -128,8 +135,8 @@ async function update() {
         return
     }
 
-    if (beliefStateInputDiv.children.length == 0) setUpBeliefStateInputDiv(state.issues)
-    if (feedTable.children.length == 0) setUpFeedTableRows(state.outDegree)
+    if (!hasSetUpBeliefStateInputDiv) setUpBeliefStateInputDiv(state.issues)
+    if (!hasSetUpFeedTableRows) setUpFeedTableRows(state.outDegree)
 
     checkReady()
 
@@ -151,7 +158,7 @@ async function main() {
 window.onload = () => {
     apiKey = document.cookie
 
-    scoreDiv = document.getElementById("score")
+    followerCountP = document.getElementById("follower-count")
     feedTable = document.getElementById("feed")
     beliefStateInputDiv = document.getElementById("belief-state-expression")
 

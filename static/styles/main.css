@@ -1,6 +1,5 @@
 body {
     text-align: center;
-    font-size: 50px;
 }
 
 table {
@@ -9,7 +8,25 @@ table {
 
 table, th, td {
     border: 1px solid black;
+    font-size: 3rem;
 }
+
+select {
+    font-size: 3rem;
+    padding: 1rem;
+    margin: 1rem;
+}
+
+
+input[type="checkbox"] {
+    width: 3rem;
+    height: 3rem;
+}
+
+div {
+    margin-top: 1rem;
+}
+
 
 #belief-state-expression {
     display: flex;
@@ -18,4 +35,8 @@ table, th, td {
 
 #feed-div {
     height: 30%;
+}
+
+#content {
+    font-size: 3rem;
 }
