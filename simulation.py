@@ -7,6 +7,7 @@ import networkx as nx
 import numpy as np
 
 from agent import *
+from message import Message
 
 
 class Simulation:
@@ -132,8 +133,12 @@ class Simulation:
     def send_all_messages(self) -> None:
         for agent in self.agents_by_id:
             for follower in self.get_followers_of(agent):
-                follower.receive_message(np.array(agent.expressed_belief_state))
-                print(follower.get_feed())
+                follower.receive_message(Message(
+                    agent, 
+                    np.array(agent.expressed_belief_state),
+                    self.get_in_degree(agent)
+                    )
+                )
 
     
     def is_idle(self, agent: Agent) -> bool:
@@ -163,6 +168,10 @@ class Simulation:
     def get_followers_of(self, agent: Agent) -> list:
         return [self.get_agent(node) \
             for node in self.graph.successors(agent.node_id)]
+
+
+    def get_in_degree(self, agent: Agent) -> int:
+        return self.graph.in_degree(agent.node_id)
 
     
     def get_out_degree(self, agent: Agent) -> int:

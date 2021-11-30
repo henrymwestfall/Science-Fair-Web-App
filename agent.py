@@ -1,5 +1,8 @@
 import numpy as np
 
+from message import Message
+
+
 class Agent:
     def __init__(self, sim, node_id: int, name: str):
         self.parent_sim = sim
@@ -21,12 +24,12 @@ class Agent:
         self.awaiting_client = True
 
     
-    def get_feed(self):
-        return self.feed
+    def get_feed(self) -> list:
+        return [m.toDict() for m in self.feed]
 
     
-    def receive_message(self, message: np.ndarray) -> None:
-        self.feed.append(message.tolist())
+    def receive_message(self, message: Message) -> None:
+        self.feed.append(message)
 
 
     def add_influencer(self, influencer) -> None:

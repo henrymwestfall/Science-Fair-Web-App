@@ -55,6 +55,12 @@ function setUpFeedTableRows(count) {
 }
 
 
+function getFeedTableCell(col, row) {
+    console.log(`feed_row_${row}_${col}`)
+    return document.getElementById(`feed_row_${row}_${col}`)
+}
+
+
 function getMessage() {
     const message = []
     let children = beliefStateInputDiv.children
@@ -62,6 +68,29 @@ function getMessage() {
         message.push(parseInt(children[i].value))
     }
     return message
+}
+
+
+function getIssueStringFromInts(issues, ints) {
+    let str = ""
+    for (let i = 0; i < issues.length; i++) {
+        if (ints[i] == -1) str += String(issues[i][0])
+        else str += String(issues[i][1])
+        str += "\t"
+    }
+    return str
+}
+
+
+function fillMessageTable(messages, issues) {
+    // messages is an array of message dictionaries
+    for (let i = 1; i <= messages.length; i++) {
+        let message = messages[i]
+        getFeedTableCell("User", i).innerText = message["User"]
+        getFeedTableCell("Latest Post", i).innerText = getIssueStringFromInts(issues, 
+            message["Latest Post"])
+        getFeedTableCell("Followers", i).innerText = message["Followers"]
+    }
 }
 
 
@@ -104,7 +133,7 @@ async function update() {
 
     checkReady()
 
-    if (state.messages.length > 0) alert ("FINALLY GODDAMMIT")
+    if (state.messages.length > 0) fillMessageTable(state.messages, state.issues)
 }
 
 

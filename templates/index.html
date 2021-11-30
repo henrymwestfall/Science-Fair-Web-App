@@ -8,19 +8,21 @@
     </head>
 
     <body>
-        <div id="score">0</div>
+        <div id="content">
+            <div id="score">0</div>
 
-        <div id="belief-state-expression"></div>
+            <div id="belief-state-expression"></div>
 
-        <div id="feed-div">
-            <table id="feed"></table>
+            <div id="feed-div">
+                <table id="feed"></table>
+            </div>
+
+            <div>
+                <input type="checkbox" id="ready" name="ready">
+                <label for="ready">Ready!</label>
+            </div>
+
+            <button onclick="clearAPIkey()">Reset API Key</button>
         </div>
-
-        <div>
-            <input type="checkbox" id="ready" name="ready">
-            <label for="ready">Ready!</label>
-        </div>
-
-        <button onclick="clearAPIkey()">Reset API Key</button>
     </body>
 </html>

@@ -1,10 +1,13 @@
 class Message:
-    def __init__(self, author, message):
+    def __init__(self, author, message, degree=0):
         self.author = author
         self.message = message
+        self.degree = degree
 
-        self.viewers = []
-
-
-    def calculate_feedback(self):
-        pass
+    
+    def toDict(self) -> dict:
+        return {
+            "User": self.author.name,
+            "Latest Post": self.message.tolist(),
+            "Followers": self.degree
+        }
