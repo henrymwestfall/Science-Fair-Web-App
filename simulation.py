@@ -20,7 +20,7 @@ class Simulation:
 
         self.agents_by_id = []
         self.size = self.params["size"]
-        self.graph: nx.DiGraph = nx.scale_free_graph(self.size)
+        self.graph: nx.DiGraph = nx.fast_gnp_random_graph(self.size, 5.0 / self.size, directed=True)
         self.graphs = [self.graph.copy()]
 
         fake_names = self.fake_name_generator()
@@ -39,7 +39,10 @@ class Simulation:
         # randomly generate issues as pairs of letters
         self.num_issues = min(self.params["issues"], 13)
         self.issues = []
-        alphabet = [chr(v) for v in range(65, 91)] # all capital letters
+
+        # capital letters, excluding vowels
+        alphabet = [chr(v) for v in range(65, 91) \
+            if not chr(v) in ("A", "E", "I", "O", "U", "Y")]
         issue_choices = self.rng.choice(alphabet, size=self.num_issues * 2, replace=False)
         issue = ["blank", "blank"]
         for stance in issue_choices:

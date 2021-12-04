@@ -8,35 +8,55 @@ table {
 
 table, th, td {
     border: 1px solid black;
-    font-size: 3rem;
+    font-size: 1.5rem;
+    padding: 0.25rem;
 }
 
 select {
-    font-size: 3rem;
-    padding: 1rem;
-    margin: 1rem;
+    font-size: 2rem;
+    padding: 0.5rem;
+    margin: 0.5rem;
 }
 
 
 input[type="checkbox"] {
-    width: 3rem;
-    height: 3rem;
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 div {
-    margin-top: 1rem;
+    margin-top: 0.65rem;
 }
 
 
-#belief-state-expression {
+.flat-div {
     display: flex;
     justify-content: space-around;
 }
 
+
 #feed-div {
-    height: 30%;
+    height: 20rem;
 }
 
 #content {
-    font-size: 3rem;
+    font-size: 2rem;
+}
+
+#api-key-input {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 5vh;
+}
+
+#api-key-input input[type="text"] {
+    width: 6em;
+    font-size: inherit;
+    text-align: center;
+}
+
+#api-key-input button {
+    font-size: inherit;
 }

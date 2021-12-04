@@ -9,9 +9,12 @@
 
     <body>
         <div id="content">
-            <p id="follower-count">0 followers</p>
+            <div class="flat-div">
+                <p id="follower-count">0 followers</p>
+                <p id="team">Unaffiliated</p>
+            </div>
 
-            <div id="belief-state-expression">
+            <div id="belief-state-expression" class="flat-div">
                 <p>Expressed Belief State:</p>
             </div>
 
@@ -21,11 +24,16 @@
 
             <div>
                 <p>0/24 people are ready</p>
-                <input type="checkbox" id="ready" name="ready">
                 <label for="ready">Ready!</label>
+                <input type="checkbox" id="ready" name="ready">
             </div>
+        </div>
 
-            <button onclick="clearAPIkey()">Reset API Key</button>
+
+        <div id="api-key-input">
+            <label for="api-key-input">API Key:</label>
+            <input type="text" id="api-key-input-box" name="api-key-input">
+            <button id="api-key-connect" onclick="setAPIKey()">Connect</button>
         </div>
     </body>
 </html>

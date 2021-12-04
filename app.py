@@ -68,7 +68,8 @@ def get_state(key=None):
             "issues": sim.issues,
             "messages": agent.get_feed(),
             "outDegree": sim.get_out_degree(agent),
-            "step": sim.step
+            "step": sim.step,
+            "team": None
         })
     return json.dumps({"error": "keyNotFound"})
 

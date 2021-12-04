@@ -1,3 +1,6 @@
+var contentDiv
+var apiKeyEnterDiv
+
 var followerCountP
 var feedTable
 var beliefStateInputDiv
@@ -122,17 +125,19 @@ function checkReady() {
 }
 
 
-function clearAPIkey() {
-    apiKey = ""
+function setAPIKey() {
+    apiKey = document.getElementById("api-key-input-box").value
 }
 
 
 async function update() {
     const state = await JSON.parse(await (await fetch(`/state/${apiKey}`)).text())
 
-    if (state.error == "keyNotFound") {
-        clearAPIkey()
-        return
+    if (state.team != null) {
+        let teamP = document.getElementById("team")
+        teamP.innerText = state.team[0]
+        teamP.style.color = state.team[1]
+        teamP.hidden = false
     }
 
     if (!hasSetUpBeliefStateInputDiv) setUpBeliefStateInputDiv(state.issues)
@@ -149,7 +154,7 @@ async function main() {
         const resp = await JSON.parse(await (await fetch(`/new-apikey`)).text())
         apiKey = resp.apiKey
         document.cookie = apiKey
-    } else {
+    } else if (!contentDiv.hidden) {
         update()
     }
 }
@@ -158,10 +163,17 @@ async function main() {
 window.onload = () => {
     apiKey = document.cookie
 
+    contentDiv = document.getElementById("content")
+    apiKeyEnterDiv = document.getElementById("api-key-input")
+
     followerCountP = document.getElementById("follower-count")
     feedTable = document.getElementById("feed")
     beliefStateInputDiv = document.getElementById("belief-state-expression")
 
+    document.getElementById("team").hidden = true
     document.getElementById("ready").checked = false
+
+    contentDiv.hidden = true
+
     window.setInterval(main, 500)
 }

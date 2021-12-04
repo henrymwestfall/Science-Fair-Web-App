@@ -1,4 +1,3 @@
-from math import exp
 import requests
 import time
 import random
