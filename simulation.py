@@ -203,15 +203,15 @@ class Simulation:
         with open("names/surnames.txt") as f:
             possible_surnames = f.readlines()
         
-        used_names = set()
+        used_surnames = set()
 
         while True:
-            name = self.rng.choice(possible_first_names) \
-                + " " + self.rng.choice(possible_surnames)
+            surname = self.rng.choice(possible_surnames)
+            initial = chr(self.rng.integers(65, 90, endpoint=True))
 
-            if not name in used_names:
-                used_names.add(name)
-                yield name
+            if not surname in used_surnames:
+                used_surnames.add(surname)
+                yield initial + " " + surname
 
 
     def plot_graph(self):
