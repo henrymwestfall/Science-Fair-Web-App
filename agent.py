@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 
 from message import Message
@@ -21,9 +23,14 @@ class Agent:
 
         self.partisan_affiliation = None
 
-        self.awaiting_client = True
+        self.last_client_connection = 0
 
     
+    @property
+    def awaiting_client(self):
+        return time.time() - self.last_client_connection >= 5
+
+
     def get_feed(self) -> list:
         return [m.toDict() for m in self.feed]
 

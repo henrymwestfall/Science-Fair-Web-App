@@ -150,19 +150,15 @@ async function update() {
 
 
 async function main() {
-    if (apiKey == "") {
-        const resp = await JSON.parse(await (await fetch(`/new-apikey`)).text())
-        apiKey = resp.apiKey
-        document.cookie = apiKey
-    } else if (!contentDiv.hidden) {
+    if (apiKey != "") {
+        contentDiv.hidden = false
+        apiKeyEnterDiv.hidden = true
         update()
     }
 }
 
 
 window.onload = () => {
-    apiKey = document.cookie
-
     contentDiv = document.getElementById("content")
     apiKeyEnterDiv = document.getElementById("api-key-input")
 

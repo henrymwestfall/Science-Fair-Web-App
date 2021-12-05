@@ -1,8 +1,7 @@
-from math import inf
+import time
 import random
 
 from flask import Flask, render_template, redirect, request, json
-import requests
 
 from simulation import *
 
@@ -12,7 +11,7 @@ def api_key_generator(length=6):
     while True:
         key = ""
         for i in range(length):
-            key += chr(random.randint(97, 122))
+            key += chr(random.randint(65, 90))
 
         if not (key in used):
             used.add(key)
@@ -48,7 +47,7 @@ def index():
 @app.route("/admin/<key>")
 def admin(key=None):
     if key == admin_key:
-        return render_template("admin.html")
+        return render_template("admin.html", apiKey=key)
     else:
         return redirect("/")
 
@@ -62,6 +61,7 @@ def get_api_key():
 def get_state(key=None):
     agent = agents_by_key.get(key)
     if agent != None:
+        agent.last_client_connection = time.time()
         return json.dumps({
             "error": None,
             "score": agent.score,
@@ -101,6 +101,7 @@ def get_admin_view(key=None):
             "size": sim.size,
             "length": sim.length,
             "step": sim.step,
-            "idle_agents": len(sim.idle_agents)
+            "idle_agents": len(sim.idle_agents),
+            "apiKeys": [(key, not agent.awaiting_client) for key, agent in agents_by_key.items()]
         })
     return json.dumps({"error": "Permission denied"})

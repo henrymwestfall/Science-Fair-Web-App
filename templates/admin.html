@@ -1,9 +1,22 @@
 <!DOCTYPE html>
 <html>
     <head>
-
+        <title>Social Network — Admin</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/admin.css') }}">
+        <script src="{{ url_for('static', filename='admin.js') }}"></script>
+        <script>
+            const apiKey = "{{ apiKey }}"
+        </script>
     </head>
     <body>
-        
+        <div id="state-numbers"></div>
+
+        <button onclick="toggleVisible('api-key-table')">Show API Key Table</button>
+        <table id="api-key-table">
+            <tr>
+                <th>API Key</th>
+                <th>In Use</th>
+            </tr>
+        </table>
     </body>
 </html>
