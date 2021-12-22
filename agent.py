@@ -29,36 +29,56 @@ class Agent:
     
     @property
     def awaiting_client(self):
+        """Return whether this agent is waiting for a client connection. An 
+        agent is considered waiting when it has not received any requests from
+        a client for more then 2 seconds.
+        """
         return time.time() - self.last_client_connection >= 2
 
 
     @property
     def ready(self):
+        """Return whether this agent is flagged as ready. If the client has
+        sent a POST request to mark the agent as ready within the last 2
+        seconds, the agent is ready.
+        """
         return time.time() - self.last_client_ready_post <= 2
 
 
     def get_feed(self) -> list:
+        """Return the message feed as a JSON-friendly list."""
         return [m.to_dict() for m in self.feed]
 
     
     def receive_message(self, message: Message) -> None:
+        """Receive a message to the feed."""
         self.feed.append(message)
 
 
     def add_influencer(self, influencer) -> None:
+        """Follow an agent."""
         if not influencer in self.influencers:
             self.influencers.append(influencer)
 
 
     def unfollow_influencer(self, influencer: int) -> None:
+        """Unfollow an influencer based on the index of the influencer in this
+        agent's list of influencers (Agent.influencers)"""
         self.influencers_to_unfollow.append(influencer)
 
 
     def express_belief_state(self, belief_state: list) -> None:
+        """Updaye the next expressed belief state based on a given list. 
+        Expressed belief states are numpy arrays. This method also tells 
+        the agent that there is a connected client at the time it's called.
+        """
         self.next_expressed_belief_state = np.array(belief_state)
         self.last_client_ready_post = time.time()
 
 
     def sync_belief_state(self) -> None:
+        """Update the actual expressed belief state. Expressed belief state
+        and next expressed belief state are kept separate so that all agents
+        in a simulation may be updated in parallel."""
         self.expressed_belief_state = self.next_expressed_belief_state
         self.next_expressed_belief_state = np.zeros(self.next_expressed_belief_state.shape)
