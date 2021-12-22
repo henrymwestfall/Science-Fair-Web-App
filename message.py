@@ -5,7 +5,7 @@ class Message:
         self.degree = degree
 
     
-    def toDict(self) -> dict:
+    def to_dict(self) -> dict:
         return {
             "User": self.author.name,
             "Latest Post": self.message.tolist(),

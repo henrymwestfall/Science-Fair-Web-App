@@ -1,3 +1,4 @@
+from os import read
 import time
 import math
 from threading import Thread
@@ -20,7 +21,7 @@ class Simulation:
 
         self.agents_by_id = []
         self.size = self.params["size"]
-        self.graph: nx.DiGraph = nx.fast_gnp_random_graph(self.size, 5.0 / self.size, directed=True)
+        self.graph: nx.DiGraph = nx.complete_graph(self.size, nx.DiGraph)
         self.graphs = [self.graph.copy()]
 
         fake_names = self.fake_name_generator()
@@ -28,9 +29,6 @@ class Simulation:
             agent = Agent(self, node, next(fake_names))
             agent.approval = self.params["v0"]
             self.agents_by_id.append(agent)
-
-        # step specific counters
-        self.idle_agents = set()
 
         self.length = self.params["length"]
         self.step = 0
@@ -73,24 +71,31 @@ class Simulation:
             print("Updating approvals...")
             if self.step != 1: # expressed belief states don't exist yet
                 self.update_approvals()
+                
             print("Syncing belief states...")
             for agent in self.agents_by_id:
                 agent.sync_belief_state()
+
             print("Sending messages...")
             self.send_all_messages()
 
-            self.idle_agents.clear()
+            print("Rewiring connections...")
+            for agent in self.agents_by_id:
+                self.rewire(agent)
         
         # wait for agents to express belief states
         print("Waiting for clients...")
         start = time.time()
-        while len(self.idle_agents) < self.size or time.time() - start < self.min_step_time:
+        while self.get_ready_agent_count() < self.size or time.time() - start < self.min_step_time:
             time.sleep(0.1)
 
-        # rewire connections
-        print("Rewiring connections...")
+
+    def get_ready_agent_count(self) -> int:
+        ready_count = 0
         for agent in self.agents_by_id:
-            self.rewire(agent)
+            if agent.ready:
+                ready_count += 1
+        return ready_count
 
 
     def update_approvals(self) -> None:
@@ -131,6 +136,10 @@ class Simulation:
             n -= 1
 
             self.create_edge(agent.node_id, selection.node_id)
+
+
+    def get_cosine_similarity_measure(self, agent_a, agent_b):
+        pass
             
 
     def send_all_messages(self) -> None:
@@ -142,18 +151,6 @@ class Simulation:
                     self.get_in_degree(agent)
                     )
                 )
-
-    
-    def is_idle(self, agent: Agent) -> bool:
-        return agent in self.idle_agents
-
-    
-    def handle_agent_belief_expression(self, agent: Agent) -> None:
-        self.idle_agents.add(agent)
-
-
-    def alert_message_sent(self, agent_id):
-        self.idle_agents.add(agent_id)
 
 
     def get_agent(self, agent_id: int) -> Agent:
@@ -194,11 +191,7 @@ class Simulation:
 
 
     def fake_name_generator(self):
-        possible_first_names = []
         possible_surnames = []
-
-        with open("names/firstnames.txt") as f:
-            possible_first_names = f.readlines()
 
         with open("names/surnames.txt") as f:
             possible_surnames = f.readlines()
@@ -211,7 +204,7 @@ class Simulation:
 
             if not surname in used_surnames:
                 used_surnames.add(surname)
-                yield initial + " " + surname
+                yield initial + ". " + surname
 
 
     def plot_graph(self):

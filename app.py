@@ -64,11 +64,13 @@ def get_state(key=None):
         agent.last_client_connection = time.time()
         return json.dumps({
             "error": None,
-            "score": agent.score,
+            "followers": sim.get_in_degree(agent),
             "issues": sim.issues,
             "messages": agent.get_feed(),
             "outDegree": sim.get_out_degree(agent),
             "step": sim.step,
+            "readyCount": sim.get_ready_agent_count(),
+            "size": sim.size,
             "team": None
         })
     return json.dumps({"error": "keyNotFound"})
@@ -101,7 +103,7 @@ def get_admin_view(key=None):
             "size": sim.size,
             "length": sim.length,
             "step": sim.step,
-            "idle_agents": len(sim.idle_agents),
+            "ready": sim.get_ready_agent_count(),
             "apiKeys": [(key, not agent.awaiting_client) for key, agent in agents_by_key.items()]
         })
     return json.dumps({"error": "Permission denied"})

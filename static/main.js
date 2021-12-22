@@ -2,12 +2,15 @@ var contentDiv
 var apiKeyEnterDiv
 
 var followerCountP
+var readyCountP
 var feedTable
 var beliefStateInputDiv
 var apiKey = ""
 
 var hasSetUpBeliefStateInputDiv = false
 var hasSetUpFeedTableRows = false
+
+var step = 0
 
 
 function setUpBeliefStateInputDiv(issues) {
@@ -40,7 +43,7 @@ function setUpBeliefStateInputDiv(issues) {
 
 
 function setUpFeedTableRows(count) {
-    const cols = ["User", "Latest Post", "Followers"]
+    const cols = ["User", "Latest Post", "Followers", "Unfollow"]
 
     for (let i = 0; i < count + 1; i++) {
         let row = document.createElement("tr")
@@ -49,11 +52,18 @@ function setUpFeedTableRows(count) {
         let cellType = "td"
         if (i == 0) cellType = "th"
         
-        for (let c = 0; c < 3; c++) {
+        for (let c = 0; c < cols.length; c++) {
             let cell = document.createElement(cellType)
             if (i > 0) {
                 cell.id = `feed_row_${i}_${cols[c]}`
-                cell.innerText = "___"
+
+                if (cols[c] == "Unfollow") {
+                    let unfollowBox = document.createElement("input")
+                    unfollowBox.type = "checkbox"
+                    unfollowBox.id = `unfollow_checkbox_${c}`
+                    cell.appendChild(unfollowBox)
+                }
+                else cell.innerText = "___"
             }
             else cell.innerText = cols[c]
             row.appendChild(cell)
@@ -94,12 +104,13 @@ function getIssueStringFromInts(issues, ints) {
 
 function fillMessageTable(messages, issues) {
     // messages is an array of message dictionaries
-    for (let i = 1; i <= messages.length; i++) {
+    for (let i = 0; i < messages.length; i++) {
+        let c = i + 1
         let message = messages[i]
-        getFeedTableCell("User", i).innerText = message["User"]
-        getFeedTableCell("Latest Post", i).innerText = getIssueStringFromInts(issues, 
+        getFeedTableCell("User", c).innerText = message["User"]
+        getFeedTableCell("Latest Post", c).innerText = getIssueStringFromInts(issues, 
             message["Latest Post"])
-        getFeedTableCell("Followers", i).innerText = message["Followers"]
+        getFeedTableCell("Followers", c).innerText = message["Followers"]
     }
 }
 
@@ -119,8 +130,6 @@ function checkReady() {
                 if (error != null) alert(error)
             })
         })
-
-        readyElem.checked = false
     }
 }
 
@@ -143,7 +152,15 @@ async function update() {
     if (!hasSetUpBeliefStateInputDiv) setUpBeliefStateInputDiv(state.issues)
     if (!hasSetUpFeedTableRows) setUpFeedTableRows(state.outDegree)
 
+    if (state.step != step) {
+        step = state.step
+        document.getElementById("ready").checked = false
+    }
+
     checkReady()
+
+    followerCountP.innerHTML = `You have ${state.followers} followers!`
+    readyCountP.innerHTML = `${state.readyCount} of ${state.size} people are ready!`
 
     if (state.messages.length > 0) fillMessageTable(state.messages, state.issues)
 }
@@ -163,6 +180,7 @@ window.onload = () => {
     apiKeyEnterDiv = document.getElementById("api-key-input")
 
     followerCountP = document.getElementById("follower-count")
+    readyCountP = document.getElementById("ready-count")
     feedTable = document.getElementById("feed")
     beliefStateInputDiv = document.getElementById("belief-state-expression")
 

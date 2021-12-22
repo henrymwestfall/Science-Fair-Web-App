@@ -24,15 +24,21 @@ class Agent:
         self.partisan_affiliation = None
 
         self.last_client_connection = 0
+        self.last_client_ready_post = 0
 
     
     @property
     def awaiting_client(self):
-        return time.time() - self.last_client_connection >= 5
+        return time.time() - self.last_client_connection >= 2
+
+
+    @property
+    def ready(self):
+        return time.time() - self.last_client_ready_post <= 2
 
 
     def get_feed(self) -> list:
-        return [m.toDict() for m in self.feed]
+        return [m.to_dict() for m in self.feed]
 
     
     def receive_message(self, message: Message) -> None:
@@ -50,7 +56,7 @@ class Agent:
 
     def express_belief_state(self, belief_state: list) -> None:
         self.next_expressed_belief_state = np.array(belief_state)
-        self.parent_sim.handle_agent_belief_expression(self)
+        self.last_client_ready_post = time.time()
 
 
     def sync_belief_state(self) -> None:
