@@ -14,6 +14,9 @@ class Agent:
         self.score = 0
         self.approval = 1
 
+        # list of belief state expressions by step
+        self.prior_belief_states = []
+
         self.expressed_belief_state = np.array([])
         self.next_expressed_belief_state = np.array([])
         self.feed = []
@@ -82,3 +85,4 @@ class Agent:
         in a simulation may be updated in parallel."""
         self.expressed_belief_state = self.next_expressed_belief_state
         self.next_expressed_belief_state = np.zeros(self.next_expressed_belief_state.shape)
+        self.prior_belief_states.append(self.expressed_belief_state)

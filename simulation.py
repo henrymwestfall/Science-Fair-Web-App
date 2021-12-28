@@ -121,9 +121,9 @@ class Simulation:
         
         Agents may only connect to agents who are within an ego graph with 
         radius 2. Given an agent i, each potential influencer j is assigned
-        a weight equal to the product of the cosine similarity measure between
-        the i and j's previously expressed belief states and  the accumulated 
-        approval of the influencer j.
+        a weight equal to the product of the sum of percent similarity over
+        (I) a given depth between the i and j's previously expressed belief 
+        states and (II) the accumulated approval of the influencer j.
         """
         # determine which agents can be selected as influencers and their weights
         ego_graph = nx.generators.ego.ego_graph(self.graph, agent.node_id, radius=2)
@@ -133,9 +133,8 @@ class Simulation:
             possible_influencer = self.get_agent(node)
             if not (possible_influencer is agent or possible_influencer in agent.influencers):
                 possibities.append(possible_influencer)
-                similarity = self.get_belief_state_similarity(agent, possible_influencer)
-                influencer_approval = math.log(possible_influencer.approval, self.params["alpha"])
-                choice_weights[possible_influencer] =  similarity * influencer_approval
+                similarity = self.agent_ideological_similarity(agent, possible_influencer)
+                choice_weights[possible_influencer] =  similarity * possible_influencer.approval
 
         # unfollow as many as possible
         n = len(possibities)
@@ -154,20 +153,19 @@ class Simulation:
             self.create_edge(agent.node_id, selection.node_id)
 
 
-    def get_belief_state_similarity(self, 
-                                    agent_a: Agent, 
+    @staticmethod
+    def agent_ideological_similarity(agent_a: Agent,
                                     agent_b: Agent,
-                                    depth: int = 3) -> float:
-        """Return the cosine similarity measure between the previous agents' 
-        belief states. This is the cosine of the angle between the expressed
-        belief states, calculated using the dot product.
-        
-        TODO: account for depth, rather than simply looking at the immediately
-        prior expressed belief states"""
-        a = agent_a.expressed_belief_state
-        b = agent_b.expressed_belief_state
-        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-            
+                                    depth: int = 3,
+                                    discount: float = 0.75) -> float:
+        applied_depth = min((depth, len(agent_a.prior_belief_states)))
+        similarity = 0
+        for i in range(-1, -(applied_depth + 1), -1):
+            a = agent_a.prior_belief_states[i]
+            b = agent_b.prior_belief_states[i]
+            similarity += ((a == b).sum() / a.size) * discount ** (abs(i) - 1)
+        return similarity
+
 
     def send_all_messages(self) -> None:
         """Send expressed belief states from all influencers to their 
