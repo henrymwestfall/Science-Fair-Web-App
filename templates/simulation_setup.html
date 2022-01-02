@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Social Network -- Simulation Setup</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/admin.css') }}">
+        <script src="{{ url_for('static', filename='simulation_setup.js') }}"></script>
+        <script>
+            const apiKey = "{{ apiKey }}"
+        </script>
+    </head>
+    <body>
+        <form id="setup-form">
+
+        </form>
+        <button onclick="submitForm();">Create Simulation</button>
+    </body>
+</html>

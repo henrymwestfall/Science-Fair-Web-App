@@ -20,6 +20,11 @@ class Server:
         self.active_simulation: Simulation = None
         self.agents_by_key = {}
 
+        self.simulation_parameter_queue = []
+
+        with open("parameters.json", "r") as f:
+            self.default_parameters = json.load(f)
+
     
     def get_new_api_key_generator(self, length=6):
         used = set()
@@ -32,17 +37,48 @@ class Server:
                 used.add(key)
                 yield key
 
+
+    def start_simulation(self, params: dict) -> None:
+        """
+        Start a simulation with the passed parameters. Simulations do not
+        execute simultaneously, so this adds the request to a queue if there
+        is already an active simulation.
+        """
+
+        if params == None:
+            params = self.default_parameters.copy()
+
+        if self.active_simulation != None:
+            self.simulation_parameter_queue.append(params)
+        else:
+            self.active_simulation = Simulation(params)
+            self.active_simulation.start()
+
     
     def end_simulation(self) -> None:
+        """
+        End the active simulation and log it as completed. Then, start the next
+        simulation based on queued parameters.
+        """
+
         self.completed_simulations.append(
             (str(datetime.now()), self.active_simulation)
         )
-        self.active_simulation = None
         self.api_key_generator = self.get_new_api_key_generator()
         self.agents_by_key = {}
 
+        self.active_simulation = None
+
+        # if there are queued parameters, begin simulations with them
+        if len(self.simulation_parameter_queue) > 0:
+            self.start_simulation(self.simulation_parameter_queue.pop(0))
+
     
     def get_client_api_key(self) -> str:
+        """
+        Get an unused api key for a client agent.
+        """
+
         for key, agent in self.agents_by_key.items():
             if agent.awaiting_client:
                 agent.awaiting_client = False
@@ -50,6 +86,10 @@ class Server:
     
     
     def get_state(self, key) -> str:
+        """
+        Get the state as seen by a given client.
+        """
+
         agent = self.agents_by_key.get(key)
         if agent != None:
             agent.last_client_connection = time.time()
@@ -81,10 +121,13 @@ class Server:
         return json.dumps({"error": None})
 
 
-    def get_admin_view(self) -> str:
-        return json.dumps({
-            "params": self.active_simulation.params,
-            "step": self.active_simulation.step,
-            "ready": self.active_simulation.get_ready_agent_count(),
-            "apiKey": [(key, not agent.awaiting_client) for key, agent in self.agents_by_key.items()]
-        })
+    def get_simulation_state(self) -> str:
+        if self.active_simulation != None:
+            return json.dumps({
+                "params": self.active_simulation.params,
+                "step": self.active_simulation.step,
+                "ready": self.active_simulation.get_ready_agent_count(),
+                "apiKey": [(key, not agent.awaiting_client) for key, agent in self.agents_by_key.items()]
+            })
+        else:
+            return json.dumps({"error": "No active simulation"})
