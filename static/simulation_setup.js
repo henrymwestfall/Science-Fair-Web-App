@@ -1,4 +1,5 @@
 var form
+const inputElements = []
 const dataToInputTypes = {
     "string": "text",
     "number": "text",
@@ -6,19 +7,26 @@ const dataToInputTypes = {
 }
 
 
-function submitForm() {
+function createFormData() {
     // create data object to send with correct data types
     let params = {}
-    for (child of form.children) {
+    for (child of inputElements) {
         let numParse = parseFloat(child.value)
-        if (numParse === NaN) // the value is not a number, so store the string
+        if (isNaN(numParse)) // the value is not a number, so store the string
             params[child.name] = child.value
         else // the value is a number, so store it in the data as such
             params[child.name] = numParse
     }
 
+    return params
+}
+
+
+function submitForm() {
+    let params = createFormData()
+
     let data = new FormData()
-    data.append("data", JSON.stringify({"params": params}))
+    data.append("data", JSON.stringify(params))
 
     fetch(`/create-simulation/${apiKey}`, {
         method: "POST",
@@ -56,6 +64,7 @@ window.onload = () => {
                 inputElement.name = param
                 inputElement.value = defaultValue
                 form.appendChild(inputElement)
+                inputElements.push(inputElement)
 
                 // add a break between this and the next input
                 form.appendChild(document.createElement("br"))

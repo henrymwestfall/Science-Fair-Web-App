@@ -45,6 +45,8 @@ class Server:
         is already an active simulation.
         """
 
+        print(params)
+
         if params == None:
             params = self.default_parameters.copy()
 
@@ -52,6 +54,8 @@ class Server:
             self.simulation_parameter_queue.append(params)
         else:
             self.active_simulation = Simulation(params)
+            for agent in self.active_simulation.agents_by_id:
+                self.agents_by_key[next(self.api_key_generator)] = agent
             self.active_simulation.start()
 
     
@@ -127,7 +131,7 @@ class Server:
                 "params": self.active_simulation.params,
                 "step": self.active_simulation.step,
                 "ready": self.active_simulation.get_ready_agent_count(),
-                "apiKey": [(key, not agent.awaiting_client) for key, agent in self.agents_by_key.items()]
+                "apiKeys": [(key, not agent.awaiting_client) for key, agent in self.agents_by_key.items()]
             })
         else:
             return json.dumps({"error": "No active simulation"})

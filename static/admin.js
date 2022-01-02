@@ -37,8 +37,8 @@ function updateStateNumbers() {
 
 
 async function main() {
-    const adminState = await JSON.parse(await (await fetch(`/admin-view/${apiKey}`)).text())
-    updateAPIKeyTable(adminState)
+    const simState = await JSON.parse(await (await fetch(`/simulation-state/${apiKey}`)).text())
+    updateAPIKeyTable(simState)
 }
 
 

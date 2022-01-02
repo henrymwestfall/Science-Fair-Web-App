@@ -66,8 +66,7 @@ def get_admin_view(key=None):
 @app.route("/create-simulation/<key>", methods=["POST"])
 def create_simulation(key=None):
     if key == server.admin_key:
-        data = json.loads(request.form.get("data"))
-        params = data.get("params")
+        params = json.loads(request.form.get("data"))
         server.start_simulation(params)
         return json.dumps({"error": None})
     else:
