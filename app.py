@@ -6,7 +6,7 @@ from simulation import *
 from server import Server
 
 server = Server()
-print(server.admin_key)
+print(f"Admin key: {server.admin_key}")
 
 app = Flask(__name__)
 
@@ -30,13 +30,13 @@ def get_state(key=None):
 def send_message(key=None):
     data = json.loads(request.form.get("data"))
     message = data.get("message")
-    return server.send_message(key, message)
+    return json.dumps(server.send_message(key, message))
 
 
 @app.route("/unfollow-influencer/<key>", methods=["POST"])
 def unfollow_influencer(key=None):
     influencer_id = request.data.get("influencer-id")
-    return server.unfollow_influencer(key, influencer_id)
+    return json.dumps(server.unfollow_influencer(key, influencer_id))
 
 
 # admin routes

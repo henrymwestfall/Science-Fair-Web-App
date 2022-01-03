@@ -45,8 +45,6 @@ class Server:
         is already an active simulation.
         """
 
-        print(params)
-
         if params == None:
             params = self.default_parameters.copy()
 
@@ -89,7 +87,7 @@ class Server:
                 return key
     
     
-    def get_state(self, key) -> str:
+    def get_state(self, key) -> dict:
         """
         Get the state as seen by a given client.
         """
@@ -97,7 +95,7 @@ class Server:
         agent = self.agents_by_key.get(key)
         if agent != None:
             agent.last_client_connection = time.time()
-            return json.dumps({
+            return {
                 "error": None,
                 "followers": self.active_simulation.get_in_degree(agent),
                 "outDegree": self.active_simulation.get_out_degree(agent),
@@ -106,32 +104,32 @@ class Server:
                 "step": self.active_simulation.step,
                 "readyCount": self.active_simulation.get_ready_agent_count(),
                 "size": self.active_simulation.size
-            })
+            }
         else:
-            return json.dumps({"error": "keyNotFound"})
+            return {"error": "keyNotFound"}
 
     
-    def send_message(self, key, message) -> str:
+    def send_message(self, key, message) -> dict:
         agent = self.agents_by_key.get(key)
         if agent != None and message != None:
             agent.express_belief_state(message)
-        return json.dumps({"error": None})
+        return {"error": None}
 
 
-    def unfollow_influencer(self, key, influencer_id) -> str:
+    def unfollow_influencer(self, key, influencer_id) -> dict:
         agent = self.agents_by_key.get(key)
         if agent != None and influencer_id != None:
             agent.unfollow_influencer(influencer_id)
-        return json.dumps({"error": None})
+        return {"error": None}
 
 
-    def get_simulation_state(self) -> str:
+    def get_simulation_state(self) -> dict:
         if self.active_simulation != None:
-            return json.dumps({
+            return {
                 "params": self.active_simulation.params,
                 "step": self.active_simulation.step,
                 "ready": self.active_simulation.get_ready_agent_count(),
                 "apiKeys": [(key, not agent.awaiting_client) for key, agent in self.agents_by_key.items()]
-            })
+            }
         else:
-            return json.dumps({"error": "No active simulation"})
+            return {"error": "No active simulation"}
