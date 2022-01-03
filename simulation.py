@@ -24,9 +24,9 @@ class Simulation:
         self.graph: nx.DiGraph = nx.scale_free_graph(self.size)
         self.graphs = [self.graph.copy()]
 
-        fake_names = self.fake_name_generator()
+        self.fake_names = self.fake_name_generator()
         for node in self.graph.nodes:
-            agent = Agent(self, node, next(fake_names))
+            agent = Agent(self, node, next(self.fake_names))
             agent.approval = self.params["v0"]
             self.agents_by_id.append(agent)
 
@@ -76,8 +76,10 @@ class Simulation:
                 self.update_approvals()
                 
             print("Syncing belief states...")
-            for agent in self.agents_by_id:
-                agent.sync_belief_state()
+            self.sync_belief_states()
+
+            print("Clearing feeds...")
+            self.clear_feeds()
 
             print("Sending messages...")
             self.send_all_messages()
@@ -85,12 +87,23 @@ class Simulation:
             print("Rewiring connections...")
             for agent in self.agents_by_id:
                 self.rewire(agent)
+
         
         # wait for agents to express belief states
         print("Waiting for clients...")
         start = time.time()
         while self.get_ready_agent_count() < self.size or time.time() - start < self.min_step_time:
             time.sleep(0.1)
+
+
+    def sync_belief_states(self) -> None:
+        for agent in self.agents_by_id:
+            agent.sync_belief_state()
+
+
+    def clear_feeds(self) -> None:
+        for agent in self.agents_by_id:
+            agent.feed.clear()
 
 
     def get_ready_agent_count(self) -> int:
@@ -213,23 +226,40 @@ class Simulation:
         """Get the out degree of a given agent."""
         return self.graph.out_degree(agent.node_id)
 
+
+    def clear_graph(self) -> None:
+        self.graph = nx.DiGraph()
+        self.agents_by_id.clear()
+
+    
+    def create_agent(self) -> Agent:
+        agent = Agent(self, len(self.agents_by_id), next(self.fake_names))
+        self.agents_by_id.append(agent)
+        self.graph.add_node(agent.node_id)
+
+
+    def create_agents(self, count: int) -> list:
+        return [self.create_agent() for _ in range(count)]
+
     
     def create_edge(self, node_a: int, node_b: int) -> None:
-        """Create an edge between nodes a and b.
+        """
+        Create an edge between nodes a and b where a influences b.
         
-        node_a: the integer id of the first node.
-        node_b: the integer id of the second node.
+        node_a: the integer id of the influencer node.
+        node_b: the integer id of the follower node.
         """
         self.get_agent(node_a).add_influencer(self.get_agent(node_b))
         if not self.graph.has_edge(node_a, node_b):
-            self.graph.add_adge(node_a, node_b)
+            self.graph.add_edge(node_a, node_b)
 
 
     def sever_edge(self, node_a: int, node_b: int) -> None:
-        """Remove an edge between nodes a and b.
+        """
+        Remove an edge between nodes a and b where a influences b.
         
-        node_a: the integer id of the first node.
-        node_b: the integer id of the second node.
+        node_a: the integer id of the influencer node.
+        node_b: the integer id of the follower node.
         """
         if self.graph.has_edge(node_a, node_b):
             self.get_agent(node_a).influencers.remove(self.get_agent(node_b))
