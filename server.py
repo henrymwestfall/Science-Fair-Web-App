@@ -85,7 +85,7 @@ class Server:
 
         for key, agent in self.agents_by_key.items():
             if agent.awaiting_client:
-                agent.awaiting_client = False
+                agent.last_client_connection = time.time()
                 return key
     
     

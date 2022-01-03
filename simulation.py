@@ -21,7 +21,7 @@ class Simulation:
 
         self.agents_by_id = []
         self.size = self.params["size"]
-        self.graph: nx.DiGraph = nx.complete_graph(self.size, nx.DiGraph)
+        self.graph: nx.DiGraph = nx.scale_free_graph(self.size)
         self.graphs = [self.graph.copy()]
 
         fake_names = self.fake_name_generator()

@@ -76,7 +76,6 @@ function setUpFeedTableRows(count) {
 
 
 function getFeedTableCell(col, row) {
-    console.log(`feed_row_${row}_${col}`)
     return document.getElementById(`feed_row_${row}_${col}`)
 }
 
@@ -84,7 +83,7 @@ function getFeedTableCell(col, row) {
 function getMessage() {
     const message = []
     let children = beliefStateInputDiv.children
-    for (let i = 0; i < children.length; i++) {
+    for (let i = 1; i < children.length; i++) {
         message.push(parseInt(children[i].value))
     }
     return message
@@ -169,7 +168,7 @@ async function update() {
 async function main() {
     if (apiKey != "") {
         contentDiv.hidden = false
-        apiKeyEnterDiv.hidden = true
+        apiKeyEnterDiv.remove()
         update()
     }
 }

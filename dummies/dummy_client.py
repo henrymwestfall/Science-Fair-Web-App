@@ -33,10 +33,11 @@ class DummyClient:
 
     
     def run(self):
-        state = self.get("/state")
-        expressed_state = self.behavior(state, self.memory)
-        time.sleep(random.randint(self.wait_range.start, self.wait_range.stop))
-        self.post("/send-message", {"message": expressed_state})
+        while True:
+            state = self.get("/state")
+            expressed_state = self.behavior(state, self.memory)
+            time.sleep(random.randint(self.wait_range.start, self.wait_range.stop))
+            self.post("/send-message", {"message": expressed_state})
 
 
     def get(self, req_url: str) -> dict:
@@ -49,8 +50,8 @@ class DummyClient:
 
 if __name__ == "__main__":
     server_url = "http://localhost:5000"#input("Server URL: ")
-    num_clients = 24#int(input("Number of Clients: "))
-    random_seed = 42#int(input("Seed: "))
+    num_clients = int(input("Number of Clients: "))
+    random_seed = int(input("Seed: "))
 
     random.seed(random_seed)
 

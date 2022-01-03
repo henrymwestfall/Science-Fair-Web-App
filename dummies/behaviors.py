@@ -31,11 +31,21 @@ agents and humans participants from knowing the true size of a simulation.
 """
 
 
+def behavior(fnc):
+    def inner(state: dict, memory: dict):
+        if len(state["messages"]) == 0:
+            return random_behavior(state, memory)
+        else:
+            return fnc(state, memory)
+    return inner
+
+
 def random_behavior(state: dict, memory: dict) -> list:
     """Randomly select belief states regardless of state."""
-    return [random.choice([-1, 1] for _ in state["issues"])]
+    return [random.choice([-1, 1]) for _ in state["issues"]]
 
 
+@behavior
 def zero_intelligence(state: dict, memory: dict) -> list:
     """
     Choose the most popular belief states seen. Weight by the degree of the 
@@ -49,6 +59,7 @@ def zero_intelligence(state: dict, memory: dict) -> list:
     return [math.copysign(1, v) for v in expression]
 
 
+@behavior
 def zero_intelligence_unweighted(state: dict, memory: dict) -> list:
     """
     This is exactly the same as zero_intelligence, except it does not weight
@@ -59,4 +70,6 @@ def zero_intelligence_unweighted(state: dict, memory: dict) -> list:
     for message in state["messages"]:
         for i, message_val in enumerate(message["Latest Post"]):
             expression[i] += message_val
+
+    
     return [math.copysign(1, v) for v in expression]
