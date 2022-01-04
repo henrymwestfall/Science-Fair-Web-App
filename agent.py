@@ -86,3 +86,31 @@ class Agent:
         self.expressed_belief_state = self.next_expressed_belief_state
         self.next_expressed_belief_state = np.zeros(self.next_expressed_belief_state.shape)
         self.prior_belief_states.append(self.expressed_belief_state)
+
+
+    def get_ideological_summary(self, 
+                                history_discount: float, 
+                                normalize=True) -> np.ndarray:
+        """
+        Get a vector with a bit for each expression for each issue assume only
+        2 ways to express a belief, or nonexpression. Lower discount values
+        weight the immediate future more.
+
+        TODO: rename 'history_discount'
+        """
+        state = np.ndarray(self.parent_sim.num_issues * 2)
+        for step, expression in enumerate(reversed(self.prior_belief_states)):
+            w = history_discount ** step
+            for i, opinion in enumerate(expression):
+                # add w to the correct bit based on opinion
+                if opinion == -1:
+                    state[i * 2] += w
+                else:
+                    state[i * 2 + 1] += w
+        
+        norm = np.linalg.norm(state)
+        if norm == 0 or not normalize:
+            return state
+        else:
+            print(norm)
+            return state / norm

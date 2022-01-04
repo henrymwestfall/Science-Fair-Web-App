@@ -146,7 +146,7 @@ class Simulation:
             possible_influencer = self.get_agent(node)
             if not (possible_influencer is agent or possible_influencer in agent.influencers):
                 possibities.append(possible_influencer)
-                similarity = self.agent_ideological_similarity(agent, possible_influencer)
+                similarity = self.agent_ideology_similarity(agent, possible_influencer)
                 choice_weights[possible_influencer] =  similarity * possible_influencer.approval
 
         # unfollow as many as possible
@@ -167,10 +167,14 @@ class Simulation:
 
 
     @staticmethod
-    def agent_ideological_similarity(agent_a: Agent,
+    def agent_ideological_similarity_hamming(agent_a: Agent,
                                     agent_b: Agent,
                                     depth: int = 3,
                                     discount: float = 0.75) -> float:
+        """
+        Calculate ideological similarity using Hamming Distance.
+        TODO: determine if this method is still useful, potentially remove
+        """
         applied_depth = min((depth, len(agent_a.prior_belief_states)))
         similarity = 0
         for i in range(-1, -(applied_depth + 1), -1):
@@ -178,6 +182,21 @@ class Simulation:
             b = agent_b.prior_belief_states[i]
             similarity += ((a == b).sum() / a.size) * discount ** (abs(i) - 1)
         return similarity
+
+    
+    @staticmethod
+    def agent_ideology_similarity(agent_a: Agent,
+                                    agent_b: Agent,
+                                    discount: float = 0.5) -> float:
+        """
+        Get the cosine similarity between the ideological summaries of two
+        agents. These ideologies are normalized, so the cosine equals their
+        dot product.
+        """
+        return np.dot(
+            agent_a.get_ideological_summary(discount), 
+            agent_b.get_ideological_summary(discount)
+        )
 
 
     def send_all_messages(self) -> None:
@@ -236,6 +255,7 @@ class Simulation:
         agent = Agent(self, len(self.agents_by_id), next(self.fake_names))
         self.agents_by_id.append(agent)
         self.graph.add_node(agent.node_id)
+        return agent
 
 
     def create_agents(self, count: int) -> list:
