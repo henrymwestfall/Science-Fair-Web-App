@@ -108,19 +108,28 @@ class Server:
         else:
             return {"error": "keyNotFound"}
 
+
+    def receive_client_input(self, key, message, unfollows) -> dict:
+        """
+        Receive input from a client. This input should contain a message to
+        send and a list of influencers to unfollow. The influencers should
+        be identified by their names. (or IDs? TODO: figure this out)
+        """
+        self.send_message(key, message)
+        self.unfollow_influencers(key, unfollows)
+        return {"error": None}
+
     
-    def send_message(self, key, message) -> dict:
+    def send_message(self, key, message):
         agent = self.agents_by_key.get(key)
         if agent != None and message != None:
             agent.express_belief_state(message)
-        return {"error": None}
 
 
-    def unfollow_influencer(self, key, influencer_id) -> dict:
+    def unfollow_influencers(self, key, influencer_ids=[]):
         agent = self.agents_by_key.get(key)
-        if agent != None and influencer_id != None:
-            agent.unfollow_influencer(influencer_id)
-        return {"error": None}
+        if agent != None:
+            agent.influencer_to_unfollow = influencer_ids
 
 
     def get_simulation_state(self) -> dict:

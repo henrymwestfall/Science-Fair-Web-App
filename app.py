@@ -24,19 +24,14 @@ def get_api_key():
 @app.route("/state/<key>", methods=["GET"])
 def get_state(key=None):
     return server.get_state(key)
+    
 
-
-@app.route("/send-message/<key>", methods=["POST"])
-def send_message(key=None):
+@app.route("/send-actions/<key>", methods=["POST"])
+def send_actions(key=None):
     data = json.loads(request.form.get("data"))
     message = data.get("message")
-    return json.dumps(server.send_message(key, message))
-
-
-@app.route("/unfollow-influencer/<key>", methods=["POST"])
-def unfollow_influencer(key=None):
-    influencer_id = request.data.get("influencer-id")
-    return json.dumps(server.unfollow_influencer(key, influencer_id))
+    unfollows = data.get("unfollows")
+    return json.dumps(server.receive_client_input(key, message, unfollows))
 
 
 # admin routes

@@ -5,6 +5,7 @@ var followerCountP
 var readyCountP
 var feedTable
 var beliefStateInputDiv
+
 var apiKey = ""
 
 var hasSetUpBeliefStateInputDiv = false
@@ -60,7 +61,7 @@ function setUpFeedTableRows(count) {
                 if (cols[c] == "Unfollow") {
                     let unfollowBox = document.createElement("input")
                     unfollowBox.type = "checkbox"
-                    unfollowBox.id = `unfollow_checkbox_${c}`
+                    unfollowBox.id = `unfollow_checkbox_${i}`
                     cell.appendChild(unfollowBox)
                 }
                 else cell.innerText = "___"
@@ -90,6 +91,26 @@ function getMessage() {
 }
 
 
+function getUnfollows() {
+    let unfollows = []
+    for (let i = 1; i < feedTable.children; i++) {
+        let unfollowCheckbox = document.getElementById(`unfollow_checkbox_${i}`)
+        let influencerNameElement = document.getElementById(`feed_row_${i}_User`)
+        let influencerName = influencerNameElement.innerText
+        if (unfollowCheckbox.checked) unfollows.push(influencerName)
+    }
+
+    return unfollows
+}
+
+
+function uncheckAllUnfollowCheckboxes() {
+    for (let i = 1; i < feedTable.children; i++) {
+        document.getElementById(`unfollow_checkbox_${i}`).checked = false
+    }
+}
+
+
 function getIssueStringFromInts(issues, ints) {
     let str = ""
     for (let i = 0; i < issues.length; i++) {
@@ -103,6 +124,7 @@ function getIssueStringFromInts(issues, ints) {
 
 function fillMessageTable(messages, issues) {
     // messages is an array of message dictionaries
+    console.log(messages)
     for (let i = 0; i < messages.length; i++) {
         let c = i + 1
         let message = messages[i]
@@ -118,9 +140,12 @@ function checkReady() {
     let readyElem = document.getElementById("ready")
     if (readyElem.checked) {
         let data = new FormData()
-        data.append("data", JSON.stringify({"message": getMessage()}))
+        data.append("data", JSON.stringify({
+            "message": getMessage(),
+            "unfollows": getUnfollows()
+        }))
 
-        fetch(`/send-message/${apiKey}`, {
+        fetch(`/send-actions/${apiKey}`, {
             method: "POST",
             body: data
         }).then((response) => {
@@ -154,6 +179,7 @@ async function update() {
     if (state.step != step) {
         step = state.step
         document.getElementById("ready").checked = false
+        uncheckAllUnfollowCheckboxes()
     }
 
     checkReady()

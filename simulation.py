@@ -1,4 +1,5 @@
 from os import read
+from random import choice
 import time
 import math
 from threading import Thread
@@ -20,6 +21,7 @@ class Simulation:
             self.rng = np.random.default_rng(self.params["seed"])
 
         self.agents_by_id = []
+        self.agents_by_name = {}
         self.size = self.params["size"]
         self.graph: nx.DiGraph = nx.scale_free_graph(self.size)
         self.graphs = [self.graph.copy()]
@@ -29,6 +31,7 @@ class Simulation:
             agent = Agent(self, node, next(self.fake_names))
             agent.approval = self.params["v0"]
             self.agents_by_id.append(agent)
+            self.agents_by_name[agent.name] = agent
 
         self.length = self.params["length"]
         self.step = 0
@@ -138,29 +141,39 @@ class Simulation:
         (I) a given depth between the i and j's previously expressed belief 
         states and (II) the accumulated approval of the influencer j.
         """
+
+    def get_new_influencer_possibilities_and_weights(self, agent: Agent) -> tuple:
         # determine which agents can be selected as influencers and their weights
         ego_graph = nx.generators.ego.ego_graph(self.graph, agent.node_id, radius=2)
         choice_weights = {}
-        possibities = []
+        possibilities = []
         for node in ego_graph:
             possible_influencer = self.get_agent(node)
             if not (possible_influencer is agent or possible_influencer in agent.influencers):
-                possibities.append(possible_influencer)
+                possibilities.append(possible_influencer)
                 similarity = self.agent_ideology_similarity(agent, possible_influencer)
                 choice_weights[possible_influencer] =  similarity * possible_influencer.approval
 
+        return possibilities, choice_weights
+
+    
+    def unfollow_for_agent(self, agent: Agent, n: int):
         # unfollow as many as possible
-        n = len(possibities)
         rewire_count = len(agent.influencers_to_unfollow)
         for i in range(min(rewire_count, n)):
-            self.sever_edge(agent.node_id, agent.influencers_to_unfollow[i])
+            self.sever_edge(
+                agent.node_id,
+                self.agents_by_name[agent.influencers_to_unfollow[i]].node_id
+            )
         agent.influencers_to_unfollow.clear()
 
+
+    def select_new_influencers(self, agent: Agent, rewire_count: int, choice_weights: dict, possibilities: list, n: int):
         # select new influeners
         for _ in range(rewire_count):
-            ps = [choice_weights[possibility] / n for possibility in possibities]
-            selection = self.rng.choice(possibities, ps)
-            possibities.remove(selection)
+            ps = [choice_weights[possibility] / n for possibility in possibilities]
+            selection = self.rng.choice(possibilities, ps)
+            possibilities.remove(selection)
             n -= 1
 
             self.create_edge(agent.node_id, selection.node_id)

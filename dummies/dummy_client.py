@@ -37,7 +37,9 @@ class DummyClient:
             state = self.get("/state")
             expressed_state = self.behavior(state, self.memory)
             time.sleep(random.randint(self.wait_range.start, self.wait_range.stop))
-            self.post("/send-message", {"message": expressed_state})
+            self.post("/send-actions", {
+                "message": expressed_state, "unfollows": []
+            })
 
 
     def get(self, req_url: str) -> dict:
