@@ -4,6 +4,11 @@
     "size": 4,
     "length": 20,
     "issues": 4,
+    "feed size": 6,
     "alpha": 2,
-    "v0": 1
+    "v0": 1,
+    "default edge weight": 0.5,
+    "boosted edge weight": 0.9,
+    "suppressed edge weight": 0.1,
+    "neighborhood radius": 2
 }

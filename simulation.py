@@ -3,7 +3,6 @@ from threading import Thread
 
 import matplotlib.pyplot as plt
 import networkx as nx
-from networkx.algorithms import similarity
 import numpy as np
 
 from agent import *
@@ -22,9 +21,20 @@ class Simulation:
         self.agents_by_id = []
         self.agents_by_name = {}
         self.size = self.params["size"]
-        self.feed_size = 6
+        self.feed_size = self.params["feed size"]
 
-        self.network = Network(self.size, 0.5, 0.9, 0.1, self.rng)
+        self.default_edge_weight = self.params["default edge weight"]
+        self.boosted_edge_weight = self.params["boosted edge weight"]
+        self.suppressed_edge_weight = self.params["suppressed edge weight"]
+        self.neighborhood_radius = self.params["neighborhood radius"]
+
+        self.network = Network(
+            self.size, 
+            self.default_edge_weight, 
+            self.boosted_edge_weight, 
+            self.suppressed_edge_weight, 
+            self.rng
+        )
         self.network_history = [self.network.get_graph_state()]
 
         self.fake_names = self.fake_name_generator()
@@ -246,7 +256,13 @@ class Simulation:
 
 
     def clear_graph(self) -> None:
-        self.network = Network(0, 0.5, 0.9, 0.1, self.rng)
+        self.network = Network(
+            0, 
+            self.default_edge_weight, 
+            self.boosted_edge_weight, 
+            self.suppressed_edge_weight, 
+            self.rng
+        )
         self.agents_by_id.clear()
 
     
@@ -286,7 +302,10 @@ class Simulation:
         similarity = self.agent_ideology_similarity(from_agent, to_agent)
 
         if pagerank == None:
-            pagerank = self.network.get_local_page_rank(from_agent, 2)
+            pagerank = self.network.get_local_page_rank(
+                from_agent, 
+                self.neighborhood_radius
+            )
 
         agent_to_pagerank = pagerank[to_agent]
 
@@ -295,7 +314,10 @@ class Simulation:
 
     def build_feed_for(self, agent: Agent) -> None:
         agent.feed.clear()
-        pagerank = self.network.get_local_page_rank(agent, 2)
+        pagerank = self.network.get_local_page_rank(
+            agent, 
+            self.neighborhood_radius
+        )
         neighborhood = sorted(list(pagerank.keys()))
         w = {n: self.get_edge_weight(self.agents_by_id[n], agent, pagerank) \
             for n in neighborhood
