@@ -110,16 +110,6 @@ def test_ideological_summary():
         assert abs((actual - expected).sum()) < 0.01
 
 
-@test("Rewiring")
-def test_rewiring():
-    sim = Simulation(default_parameters)
-    sim.clear_graph()
-    a, b, c = sim.create_agents(3)
-    sim.create_edge(0, 1)
-    sim.create_edge(1, 2)
-    sim.create_edge(2, 0)
-
-
 if __name__ == "__main__":
     for test_fnc in tests.values():
         test_fnc()

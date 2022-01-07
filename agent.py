@@ -21,8 +21,8 @@ class Agent:
         self.next_expressed_belief_state = np.array([])
         self.feed = []
 
-        self.influencers = []
-        self.influencers_to_unfollow = []
+        self.see_more = set()
+        self.see_less = set()
 
         self.partisan_affiliation = None
 
@@ -58,16 +58,15 @@ class Agent:
         self.feed.append(message)
 
 
-    def add_influencer(self, influencer) -> None:
+    def boost_influencer(self, influencer) -> None:
         """Follow an agent."""
-        if not influencer in self.influencers:
-            self.influencers.append(influencer)
+        self.see_more.add(influencer)
 
 
-    def unfollow_influencer(self, influencer: int) -> None:
+    def suppress_influencer(self, influencer) -> None:
         """Unfollow an influencer based on the index of the influencer in this
         agent's list of influencers (Agent.influencers)"""
-        self.influencers_to_unfollow.append(influencer)
+        self.see_less.add(influencer)
 
 
     def express_belief_state(self, belief_state: list) -> None:
@@ -86,6 +85,11 @@ class Agent:
         self.expressed_belief_state = self.next_expressed_belief_state
         self.next_expressed_belief_state = np.zeros(self.next_expressed_belief_state.shape)
         self.prior_belief_states.append(self.expressed_belief_state)
+
+    
+    def clear_influencer_change_lists(self) -> None:
+        self.see_less.clear()
+        self.see_more.clear()
 
 
     def get_ideological_summary(self, 

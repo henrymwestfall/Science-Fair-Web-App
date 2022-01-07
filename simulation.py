@@ -1,15 +1,14 @@
-from os import read
-from random import choice
 import time
-import math
 from threading import Thread
 
 import matplotlib.pyplot as plt
 import networkx as nx
+from networkx.algorithms import similarity
 import numpy as np
 
 from agent import *
 from message import Message
+from network import Network
 
 
 class Simulation:
@@ -23,11 +22,13 @@ class Simulation:
         self.agents_by_id = []
         self.agents_by_name = {}
         self.size = self.params["size"]
-        self.graph: nx.DiGraph = nx.scale_free_graph(self.size)
-        self.graphs = [self.graph.copy()]
+        self.feed_size = 6
+
+        self.network = Network(self.size, 0.5, 0.9, 0.1, self.rng)
+        self.network_history = [self.network.get_graph_state()]
 
         self.fake_names = self.fake_name_generator()
-        for node in self.graph.nodes:
+        for node in self.network.nodes:
             agent = Agent(self, node, next(self.fake_names))
             agent.approval = self.params["v0"]
             self.agents_by_id.append(agent)
@@ -69,7 +70,7 @@ class Simulation:
         for i in range(self.length):
             self.step = i
             self.process_step()
-            self.graphs.append(self.graph.copy())
+            self.network_history.append(self.network.copy())
 
     
     def process_step(self) -> None:
@@ -212,22 +213,13 @@ class Simulation:
         )
 
 
-    def send_all_messages(self) -> None:
-        """Send expressed belief states from all influencers to their 
-        followers."""
-        for agent in self.agents_by_id:
-            for follower in self.get_followers_of(agent):
-                follower.receive_message(Message(
-                    agent, 
-                    np.array(agent.expressed_belief_state),
-                    self.get_in_degree(agent)
-                    )
-                )
-
-
     def get_agent(self, agent_id: int) -> Agent:
         """Return the agent with a given id"""
         return self.agents_by_id[agent_id]
+
+
+    def get_agents(self, agent_ids: list) -> list:
+        return [self.get_agent(agent_id) for agent_id in agent_ids]
 
 
     def get_all_agents(self) -> list:
@@ -245,22 +237,16 @@ class Simulation:
 
     def get_followers_of(self, agent: Agent) -> list:
         """Return a list of followers for a given agent."""
-        return [self.get_agent(node) \
-            for node in self.graph.successors(agent.node_id)]
+        return self.get_agents(self.network.get_followers_of(agent.node_id))
 
 
     def get_in_degree(self, agent: Agent) -> int:
         """Get the in degree of a given agent."""
-        return self.graph.in_degree(agent.node_id)
-
-    
-    def get_out_degree(self, agent: Agent) -> int:
-        """Get the out degree of a given agent."""
-        return self.graph.out_degree(agent.node_id)
+        return self.network.get_in_degree(agent.node_id)
 
 
     def clear_graph(self) -> None:
-        self.graph = nx.DiGraph()
+        self.network = Network(0, 0.5, 0.9, 0.1, self.rng)
         self.agents_by_id.clear()
 
     
@@ -274,29 +260,60 @@ class Simulation:
     def create_agents(self, count: int) -> list:
         return [self.create_agent() for _ in range(count)]
 
-    
-    def create_edge(self, node_a: int, node_b: int) -> None:
-        """
-        Create an edge between nodes a and b where a influences b.
-        
-        node_a: the integer id of the influencer node.
-        node_b: the integer id of the follower node.
-        """
-        self.get_agent(node_a).add_influencer(self.get_agent(node_b))
-        if not self.graph.has_edge(node_a, node_b):
-            self.graph.add_edge(node_a, node_b)
+
+    def suppress_edge(self, agent_a: Agent, agent_b: Agent) -> None:
+        self.network.suppress_edge(agent_a.node_id, agent_b.node_id)
 
 
-    def sever_edge(self, node_a: int, node_b: int) -> None:
-        """
-        Remove an edge between nodes a and b where a influences b.
-        
-        node_a: the integer id of the influencer node.
-        node_b: the integer id of the follower node.
-        """
-        if self.graph.has_edge(node_a, node_b):
-            self.get_agent(node_a).influencers.remove(self.get_agent(node_b))
-            self.graph.remove_edge(node_a, node_b)
+    def boost_edge(self, agent_a: Agent, agent_b: Agent) -> None:
+        self.network.boost_edge(agent_a.node_id, agent_b.node_id)
+
+
+    def update_agent_relations(self) -> None:
+        for agent in self.agents_by_id:
+            for influencer in agent.see_less:
+                self.suppress_edge(agent, influencer)
+
+            for influencer in agent.see_more:
+                self.boost_edge(agent, influencer)
+
+
+    def get_edge_weight(self, 
+                        from_agent: Agent, 
+                        to_agent: Agent,
+                        pagerank: dict = None) -> float:
+        r = self.network.get_relation(from_agent.node_id, to_agent.node_id)
+        similarity = self.agent_ideology_similarity(from_agent, to_agent)
+
+        if pagerank == None:
+            pagerank = self.network.get_local_page_rank(from_agent, 2)
+
+        agent_to_pagerank = pagerank[to_agent]
+
+        return r * similarity * agent_to_pagerank
+
+
+    def build_feed_for(self, agent: Agent) -> None:
+        agent.feed.clear()
+        pagerank = self.network.get_local_page_rank(agent, 2)
+        neighborhood = sorted(list(pagerank.keys()))
+        w = {n: self.get_edge_weight(self.agents_by_id[n], agent, pagerank) \
+            for n in neighborhood
+        }
+        sum_weight = sum(w.values())
+        p = [w[n] / sum_weight for n in neighborhood]
+
+        for influencer in np.random.choice(neighborhood, self.feed_size, p=p):
+            agent.receive_message(Message(
+                self.agents_by_id[influencer],
+                np.array(influencer.expressed_belief_state),
+                self.network.get_in_degree(influencer)
+            ))
+
+
+    def send_all_messages(self) -> None:
+        for agent in self.agents_by_id:
+            self.build_feed_for(agent)
 
 
     def fake_name_generator(self):
