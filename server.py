@@ -1,5 +1,6 @@
 import random
 import time
+import pickle
 import json
 from datetime import datetime
 
@@ -98,7 +99,7 @@ class Server:
             return {
                 "error": None,
                 "followers": self.active_simulation.get_in_degree(agent),
-                "outDegree": self.active_simulation.get_out_degree(agent),
+                "outDegree": self.active_simulation.feed_size,
                 "issues": self.active_simulation.issues,
                 "messages": agent.get_feed(),
                 "step": self.active_simulation.step,
@@ -134,11 +135,20 @@ class Server:
 
     def get_simulation_state(self) -> dict:
         if self.active_simulation != None:
+            agent_data = [
+                [key] + self.active_simulation.get_agent_data_for_admin(agent) \
+                for key, agent in self.agents_by_key.items()
+            ]
+
             return {
                 "params": self.active_simulation.params,
                 "step": self.active_simulation.step,
                 "ready": self.active_simulation.get_ready_agent_count(),
-                "apiKeys": [(key, not agent.awaiting_client) for key, agent in self.agents_by_key.items()]
+                "agentData": agent_data
             }
         else:
             return {"error": "No active simulation"}
+
+    
+    def get_serialized_simulations(self) -> bytes:
+        return pickle.dumps(self.completed_simulations)

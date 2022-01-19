@@ -7,26 +7,25 @@ function toggleVisible(elemID) {
 }
 
 
-function updateAPIKeyTable(state) {
-    const table = document.getElementById("api-key-table")
+function updateAgentTable(state) {
+    const table = document.getElementById("agent-table")
     const rows = Array.from(table.children).slice(1)
+    const numCols = state.agentData[0].length
 
-    for (let i = 0; i < state.apiKeys.length; i++) {
+    for (let i = 0; i < state.agentData.length; i++) {
         if (rows.length <= i) {
             var tr = document.createElement("tr")
-            var keyCell = document.createElement("td")
-            var usedCell = document.createElement("td")
-            tr.appendChild(keyCell)
-            tr.appendChild(usedCell)
+            
+            for (let c = 0; c < numCols; c++) {
+                tr.appendChild(document.createElement("td"))
+            }
+            
             table.appendChild(tr)
-        } else {
-            var tr = rows[i]
-            var keyCell = tr.children[0]
-            var usedCell = tr.children[1]
-        }
+        } else var tr = rows[i]
 
-        keyCell.innerHTML = state.apiKeys[i][0]
-        usedCell.innerHTML = state.apiKeys[i][1]
+        for (let j = 0; j < numCols; j++) {
+            tr.children[j].innerHTML = state.agentData[i][j]
+        }
     }
 }
 
@@ -38,7 +37,7 @@ function updateStateNumbers() {
 
 async function main() {
     const simState = await JSON.parse(await (await fetch(`/simulation-state/${apiKey}`)).text())
-    updateAPIKeyTable(simState)
+    updateAgentTable(simState)
 }
 
 

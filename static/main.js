@@ -44,7 +44,7 @@ function setUpBeliefStateInputDiv(issues) {
 
 
 function setUpFeedTableRows(count) {
-    const cols = ["User", "Latest Post", "Followers", "Unfollow"]
+    const cols = ["User", "Latest Post", "Followers", "See Less", "See More"]
 
     for (let i = 0; i < count + 1; i++) {
         let row = document.createElement("tr")
@@ -58,11 +58,16 @@ function setUpFeedTableRows(count) {
             if (i > 0) {
                 cell.id = `feed_row_${i}_${cols[c]}`
 
-                if (cols[c] == "Unfollow") {
+                if (cols[c] == "See Less") {
                     let unfollowBox = document.createElement("input")
                     unfollowBox.type = "checkbox"
                     unfollowBox.id = `unfollow_checkbox_${i}`
                     cell.appendChild(unfollowBox)
+                } else if (cols[c] == "See More") {
+                    let followBox = document.createElement("input")
+                    followBox.type = "checkbox"
+                    followBox.id = `follow_checkbox_${i}`
+                    cell.appendChild(followBox)
                 }
                 else cell.innerText = "___"
             }

@@ -1,4 +1,4 @@
-import numpy as np
+from copy import deepcopy
 import networkx as nx
 
 
@@ -16,9 +16,12 @@ class Network:
         self.follow_graph = nx.DiGraph()
         self.rng = rng
 
+        self.relation_graph.add_nodes_from(self.nodes)
+        self.follow_graph.add_nodes_from(self.nodes)
+
         for i in self.nodes:
             for j in self.nodes:
-                self.relation_graph[i][j]["r"] = default_edge
+                self.relation_graph.add_edge(i, j, r=default_edge)
 
         self.default_edge = default_edge
         self.boosted_edge = boosted_edge
@@ -63,3 +66,24 @@ class Network:
 
     def get_graph_state(self) -> nx.DiGraph:
         return self.relation_graph.copy()
+
+    
+    def generate_small_world(self, k: int, p: float, seed: int) -> None:
+        """
+        Generate a small world graph. Since edges are probabilistic, this
+        means boosting edges at initialization.
+        """
+        
+        # generate base, bidirectional graph
+        self.follow_graph = nx.watts_strogatz_graph(
+            self.size, k, p, seed
+        ).to_directed()
+
+        # update edge data in relationship graph
+        for u in self.follow_graph.nodes:
+            for v in self.follow_graph[u]:
+                self.boost_edge(u, v)
+
+
+    def copy(self) -> 'Network':
+        return deepcopy(self)

@@ -13,10 +13,8 @@ from network import Network
 class Simulation:
     def __init__(self, params):
         self.params = params
-        if self.params["seed"] == None:
-            self.rng = np.random.default_rng()
-        else:
-            self.rng = np.random.default_rng(self.params["seed"])
+        self.seed = self.params["seed"]
+        self.rng = np.random.default_rng(seed=self.seed)
 
         self.agents_by_id = []
         self.agents_by_name = {}
@@ -34,6 +32,10 @@ class Simulation:
             self.boosted_edge_weight, 
             self.suppressed_edge_weight, 
             self.rng
+        )
+        self.small_world_p = self.params["small world p"]
+        self.network.generate_small_world(
+            self.feed_size, self.small_world_p, self.seed
         )
         self.network_history = [self.network.get_graph_state()]
 
@@ -139,7 +141,7 @@ class Simulation:
             followers = self.get_followers_of(agent)
             for f in followers:
                 agent.approval += (f.next_expressed_belief_state == \
-                    agent.expressed_belief_state).sum()
+                    agent.expressed_belief_state).sum().item()
 
 
     def rewire(self, agent: Agent) -> None:
@@ -180,7 +182,7 @@ class Simulation:
 
 
     def select_new_influencers(self, agent: Agent, rewire_count: int, choice_weights: dict, possibilities: list, n: int):
-        # select new influeners
+        # select new influencers
         for _ in range(rewire_count):
             ps = [choice_weights[possibility] / n for possibility in possibilities]
             selection = self.rng.choice(possibilities, ps)
@@ -299,15 +301,19 @@ class Simulation:
                         to_agent: Agent,
                         pagerank: dict = None) -> float:
         r = self.network.get_relation(from_agent.node_id, to_agent.node_id)
-        similarity = self.agent_ideology_similarity(from_agent, to_agent)
+
+        if self.step > 0:
+            similarity = self.agent_ideology_similarity(from_agent, to_agent)
+        else:
+            similarity = 1
 
         if pagerank == None:
             pagerank = self.network.get_local_page_rank(
-                from_agent, 
+                from_agent.node_id, 
                 self.neighborhood_radius
             )
 
-        agent_to_pagerank = pagerank[to_agent]
+        agent_to_pagerank = pagerank[to_agent.node_id]
 
         return r * similarity * agent_to_pagerank
 
@@ -315,21 +321,23 @@ class Simulation:
     def build_feed_for(self, agent: Agent) -> None:
         agent.feed.clear()
         pagerank = self.network.get_local_page_rank(
-            agent, 
+            agent.node_id,
             self.neighborhood_radius
         )
         neighborhood = sorted(list(pagerank.keys()))
+        neighborhood.remove(agent.node_id)
         w = {n: self.get_edge_weight(self.agents_by_id[n], agent, pagerank) \
             for n in neighborhood
         }
         sum_weight = sum(w.values())
         p = [w[n] / sum_weight for n in neighborhood]
 
-        for influencer in np.random.choice(neighborhood, self.feed_size, p=p):
+        for choice_id in np.random.choice(neighborhood, self.feed_size, p=p, replace=False):
+            influencer = self.agents_by_id[choice_id.item()]
             agent.receive_message(Message(
-                self.agents_by_id[influencer],
+                influencer,
                 np.array(influencer.expressed_belief_state),
-                self.network.get_in_degree(influencer)
+                self.get_in_degree(influencer),
             ))
 
 
@@ -354,6 +362,29 @@ class Simulation:
             if not surname in used_surnames:
                 used_surnames.add(surname)
                 yield initial + ". " + surname
+
+    def get_agent_data_for_admin(self, agent: Agent) -> list:
+        return [
+            not agent.awaiting_client,
+            agent.node_id,
+            agent.name,
+            agent.approval,
+            [
+                self.get_belief_state_as_string(state) \
+                    for state in agent.prior_belief_states
+            ]
+        ]
+
+
+    def get_belief_state_as_string(self, belief_state) -> str:
+        string_repr = ""
+        for i, v in enumerate(belief_state):
+            if v.item() == 1:
+                string_repr += self.issues[i][1]
+            else:
+                string_repr += self.issues[i][0]
+
+        return string_repr
 
 
     def plot_graph(self):

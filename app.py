@@ -58,6 +58,13 @@ def get_admin_view(key=None):
     return json.dumps({"error": "Permission denied"})
 
 
+@app.route("/past-simulations/<key>", methods=["GET"])
+def get_past_simulations(key=None):
+    if key == server.admin_key:
+        return json.dumps({"simulations": server.get_serialized_simulations()})
+    return json.dumps({"error": "Permission denied"})
+
+
 @app.route("/create-simulation/<key>", methods=["POST"])
 def create_simulation(key=None):
     if key == server.admin_key:

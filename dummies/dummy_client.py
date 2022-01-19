@@ -36,7 +36,8 @@ class DummyClient:
         while True:
             state = self.get("/state")
             expressed_state = self.behavior(state, self.memory)
-            time.sleep(random.randint(self.wait_range.start, self.wait_range.stop))
+            # time.sleep(random.randint(self.wait_range.start, self.wait_range.stop))
+            time.sleep(0.5)
             self.post("/send-actions", {
                 "message": expressed_state, "unfollows": []
             })
@@ -63,7 +64,7 @@ if __name__ == "__main__":
         client = DummyClient(
                 server_url,
                 json.loads(requests.get(server_url + "/new-apikey").text)["apiKey"],
-                behaviors.zero_intelligence
+                behaviors.zero_intelligence,
             )
         thread = Thread(target=lambda: client.run())
         thread.daemon = True

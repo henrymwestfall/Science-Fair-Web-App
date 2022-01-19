@@ -24,8 +24,6 @@ class Agent:
         self.see_more = set()
         self.see_less = set()
 
-        self.partisan_affiliation = None
-
         self.last_client_connection = 0
         self.last_client_ready_post = 0
 
