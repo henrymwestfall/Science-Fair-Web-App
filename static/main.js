@@ -1,7 +1,7 @@
 var contentDiv
 var apiKeyEnterDiv
 
-var followerCountP
+var likesCountP
 var readyCountP
 var feedTable
 var beliefStateInputDiv
@@ -189,7 +189,7 @@ async function update() {
 
     checkReady()
 
-    followerCountP.innerHTML = `You have ${state.followers} followers!`
+    likesCountP.innerHTML = `You have ${state.likes} likes!`
     readyCountP.innerHTML = `${state.readyCount} of ${state.size} people are ready!`
 
     if (state.messages.length > 0) fillMessageTable(state.messages, state.issues)
@@ -209,7 +209,7 @@ window.onload = () => {
     contentDiv = document.getElementById("content")
     apiKeyEnterDiv = document.getElementById("api-key-input")
 
-    followerCountP = document.getElementById("follower-count")
+    likesCountP = document.getElementById("likes-count")
     readyCountP = document.getElementById("ready-count")
     feedTable = document.getElementById("feed")
     beliefStateInputDiv = document.getElementById("belief-state-expression")

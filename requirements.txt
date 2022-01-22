@@ -1,2 +1,4 @@
 flask
 flask-heroku
+networkx
+numpy

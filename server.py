@@ -98,7 +98,7 @@ class Server:
             agent.last_client_connection = time.time()
             return {
                 "error": None,
-                "followers": self.active_simulation.get_in_degree(agent),
+                "likes": agent.approval,
                 "outDegree": self.active_simulation.feed_size,
                 "issues": self.active_simulation.issues,
                 "messages": agent.get_feed(),

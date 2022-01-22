@@ -12,7 +12,7 @@ class Agent:
         self.name = name
 
         self.score = 0
-        self.approval = 1
+        self.approval = 0
 
         # list of belief state expressions by step
         self.prior_belief_states = []

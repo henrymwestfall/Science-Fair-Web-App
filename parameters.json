@@ -7,7 +7,7 @@
     "feed size": 4,
     "small world p": 0.33,
     "alpha": 2,
-    "v0": 1,
+    "v0": 0,
     "default edge weight": 0.2,
     "boosted edge weight": 0.9,
     "suppressed edge weight": 0.05,
