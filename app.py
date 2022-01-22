@@ -1,5 +1,3 @@
-import time
-
 from flask import Flask, render_template, redirect, request, json
 
 from src.simulation import *
