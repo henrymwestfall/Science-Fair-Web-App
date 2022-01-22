@@ -2,7 +2,7 @@ import time
 
 import numpy as np
 
-from message import Message
+from src.message import Message
 
 
 class Agent:

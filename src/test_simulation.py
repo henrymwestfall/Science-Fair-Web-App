@@ -1,8 +1,8 @@
 import numpy as np
 import networkx as nx
 
-from simulation import Simulation
-from agent import Agent
+from src.simulation import Simulation
+from src.agent import Agent
 
 
 default_parameters = {

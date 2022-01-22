@@ -4,7 +4,7 @@ import pickle
 import json
 from datetime import datetime
 
-from simulation import Simulation
+from src.simulation import Simulation
 
 
 class Server:

@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
-from agent import *
-from message import Message
-from network import Network
+from src.agent import *
+from src.message import Message
+from src.network import Network
 
 
 class Simulation:

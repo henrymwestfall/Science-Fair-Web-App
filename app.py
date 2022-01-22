@@ -2,8 +2,8 @@ import time
 
 from flask import Flask, render_template, redirect, request, json
 
-from simulation import *
-from server import Server
+from src.simulation import *
+from src.server import Server
 
 server = Server()
 print(f"Admin key: {server.admin_key}")
