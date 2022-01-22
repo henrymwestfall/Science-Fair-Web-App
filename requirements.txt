@@ -2,4 +2,3 @@ flask
 flask-heroku
 networkx
 numpy
-matplotlib

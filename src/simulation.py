@@ -1,7 +1,6 @@
 import time
 from threading import Thread
 
-import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
@@ -385,19 +384,3 @@ class Simulation:
                 string_repr += self.issues[i][0]
 
         return string_repr
-
-
-    def plot_graph(self):
-        plt.figure(figsize=(7, 7))
-
-        max_degree = 0
-        for node in self.graph.nodes:
-            max_degree = max(self.graph.in_degree(node), max_degree)
-        
-        colors = []
-        for node in self.graph.nodes:
-            a = min(1.0, self.graph.in_degree(node) / max_degree + 0.2)
-            colors.append((0.53, 0.81, 0.92, a))
-
-        nx.draw_networkx(self.graph, pos=nx.spring_layout(self.graph), node_color=colors)
-        plt.show()
