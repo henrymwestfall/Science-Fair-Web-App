@@ -1,6 +1,5 @@
 import random
 import time
-import pickle
 import json
 from datetime import datetime
 
@@ -150,5 +149,10 @@ class Server:
             return {"error": "No active simulation"}
 
     
-    def get_serialized_simulations(self) -> bytes:
-        return pickle.dumps(self.completed_simulations)
+    def get_all_data(self, end_current=False) -> list:
+        if end_current:
+            self.end_simulation()
+        return [
+            (timestamp, sim.get_as_dict()) 
+            for timestamp, sim in self.completed_simulations
+        ]

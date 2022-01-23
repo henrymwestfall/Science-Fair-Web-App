@@ -11,15 +11,18 @@ class Agent:
         self.node_id = node_id
         self.name = name
 
-        self.score = 0
+        self.prior_approvals = []
         self.approval = 0
 
         # list of belief state expressions by step
         self.prior_belief_states = []
+        self.prior_feeds = []
 
         self.expressed_belief_state = np.array([])
         self.next_expressed_belief_state = np.array([])
         self.feed = []
+
+        self.message: Message = None
 
         self.see_more = set()
         self.see_less = set()
@@ -51,9 +54,25 @@ class Agent:
         return [m.to_dict() for m in self.feed]
 
     
+    def clear_feed(self) -> None:
+        self.prior_feeds.append(self.feed)
+        self.feed = []
+
+    
     def receive_message(self, message: Message) -> None:
         """Receive a message to the feed."""
+        message.views += 1
         self.feed.append(message)
+
+
+    def get_message(self) -> Message:
+        if self.message is None:
+            self.message = Message(self, np.array(self.expressed_belief_state))
+        return self.message
+
+
+    def clear_message(self) -> None:
+        self.message = None
 
 
     def boost_influencer(self, influencer) -> None:

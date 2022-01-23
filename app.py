@@ -31,8 +31,10 @@ def send_actions(key=None):
     unfollows = data.get("unfollows")
     return json.dumps(server.receive_client_input(key, message, unfollows))
 
+# # # # # # # # #
+# ADMIN  ROUTES #
+# # # # # # # # #
 
-# admin routes
 @app.route("/admin/<key>")
 def admin(key=None):
     if key == server.admin_key:
@@ -59,7 +61,7 @@ def get_admin_view(key=None):
 @app.route("/past-simulations/<key>", methods=["GET"])
 def get_past_simulations(key=None):
     if key == server.admin_key:
-        return json.dumps({"simulations": server.get_serialized_simulations()})
+        return json.dumps({"simulations": server.get_all_data(True)})
     return json.dumps({"error": "Permission denied"})
 
 

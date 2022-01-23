@@ -19,8 +19,8 @@ int outDegree: the number of influencers the agent has
 [{str: str, [int], int}] messages: a list of messages sent to the agent by
     influencers. Each message contains a 'User' key, mapping to the name (str)
     of the influencer; a 'Latest Post' key, mapping to a list of integer belief 
-    state expressions; and a 'Followers' key, mapping to the in-degree (int) 
-    of the message author.
+    state expressions; and a 'Views' key, mapping to number of agents who saw 
+    the message (int).
 int step: the current step of the simulation
 int readyCount: the number of agents who have signalled readiness to the server.
 int size: the number of agents in the simulation.
@@ -55,7 +55,7 @@ def zero_intelligence(state: dict, memory: dict) -> list:
     expression = [0 for _ in state["issues"]]
     for message in state["messages"]:
         for i, message_val in enumerate(message["Latest Post"]):
-            expression[i] += message_val * message["Followers"]
+            expression[i] += message_val * message["Views"]
     return [math.copysign(1, v) for v in expression]
 
 

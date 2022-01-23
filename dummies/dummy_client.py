@@ -52,7 +52,7 @@ class DummyClient:
 
 
 if __name__ == "__main__":
-    server_url = "http://localhost:5000"#input("Server URL: ")
+    server_url = input("Server URL: ")
     num_clients = int(input("Number of Clients: "))
     random_seed = int(input("Seed: "))
 

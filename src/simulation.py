@@ -81,7 +81,7 @@ class Simulation:
         for i in range(self.length):
             self.step = i
             self.process_step()
-            self.network_history.append(self.network.copy())
+            self.network_history.append(self.network.get_graph_state())
 
     
     def process_step(self) -> None:
@@ -99,9 +99,8 @@ class Simulation:
             print("Sending messages...")
             self.send_all_messages()
 
-            print("Rewiring connections...")
             for agent in self.agents_by_id:
-                self.rewire(agent)
+                agent.clear_message()
 
         
         # wait for agents to express belief states
@@ -118,7 +117,7 @@ class Simulation:
 
     def clear_feeds(self) -> None:
         for agent in self.agents_by_id:
-            agent.feed.clear()
+            agent.clear_feed()
 
 
     def get_ready_agent_count(self) -> int:
@@ -141,18 +140,8 @@ class Simulation:
             for f in followers:
                 agent.approval += (f.next_expressed_belief_state == \
                     agent.expressed_belief_state).sum().item()
+            agent.prior_approvals.append(agent.approval)
 
-
-    def rewire(self, agent: Agent) -> None:
-        """Update agent-agent connections stochastically based on similarity 
-        and approval.
-        
-        Agents may only connect to agents who are within an ego graph with 
-        radius 2. Given an agent i, each potential influencer j is assigned
-        a weight equal to the product of the sum of percent similarity over
-        (I) a given depth between the i and j's previously expressed belief 
-        states and (II) the accumulated approval of the influencer j.
-        """
 
     def get_new_influencer_possibilities_and_weights(self, agent: Agent) -> tuple:
         # determine which agents can be selected as influencers and their weights
@@ -333,11 +322,7 @@ class Simulation:
 
         for choice_id in np.random.choice(neighborhood, self.feed_size, p=p, replace=False):
             influencer = self.agents_by_id[choice_id.item()]
-            agent.receive_message(Message(
-                influencer,
-                np.array(influencer.expressed_belief_state),
-                self.get_in_degree(influencer),
-            ))
+            agent.receive_message(influencer.get_message())
 
 
     def send_all_messages(self) -> None:
@@ -384,3 +369,32 @@ class Simulation:
                 string_repr += self.issues[i][0]
 
         return string_repr
+
+    
+    def get_as_dict(self) -> dict:
+        # TODO: make this more memory efficient
+        return {
+            "params": self.params,
+            "seed": self.seed,
+            "step": self.step,
+            "agents": [
+                {
+                    "name": a.name,
+                    "node-id": a.node_id,
+                    "approval": a.approval,
+                    "prior-approvals": a.prior_approvals,
+                    "prior-belief-states": [
+                        state.tolist() for state in a.prior_belief_states
+                    ],
+                    "prior-feeds": [
+                        [m.to_dict() for m in feed]
+                        for feed in a.prior_feeds
+                    ]
+                } for a in self.agents_by_id
+            ],
+            "network-history": [{
+                "relation-graph-edges": list(
+                    n.edges(data=True)
+                )
+            } for n in self.network_history]
+        }

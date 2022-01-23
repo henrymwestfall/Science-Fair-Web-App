@@ -44,7 +44,7 @@ function setUpBeliefStateInputDiv(issues) {
 
 
 function setUpFeedTableRows(count) {
-    const cols = ["User", "Latest Post", "Followers", "See Less", "See More"]
+    const cols = ["User", "Latest Post", "Views", "See Less", "See More"]
 
     for (let i = 0; i < count + 1; i++) {
         let row = document.createElement("tr")
@@ -136,7 +136,7 @@ function fillMessageTable(messages, issues) {
         getFeedTableCell("User", c).innerText = message["User"]
         getFeedTableCell("Latest Post", c).innerText = getIssueStringFromInts(issues, 
             message["Latest Post"])
-        getFeedTableCell("Followers", c).innerText = message["Followers"]
+        getFeedTableCell("Views", c).innerText = message["Views"]
     }
 }
 
