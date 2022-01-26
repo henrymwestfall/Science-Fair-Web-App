@@ -13,10 +13,11 @@ class Server:
     """
     
     def __init__(self):
-        self.admin_key = "abcdef" # will be changed in deployed version
         self.completed_simulations = []
 
+        self.admin_key = "" # will be changed in deployed version
         self.api_key_generator = self.get_new_api_key_generator()
+        self.admin_key = next(self.api_key_generator)
         self.active_simulation: Simulation = None
         self.agents_by_key = {}
 
