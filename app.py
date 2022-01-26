@@ -75,6 +75,15 @@ def create_simulation(key=None):
         return json.dumps({"error": "Permission denied"})
 
 
+@app.route("/end-simulation/<key>", methods=["GET"])
+# this should be a POST request, but I don't care. This is easier.
+def end_simulation(key=None):
+    if key == server.admin_key:
+        server.end_simulation()
+        return json.dumps({"error": None})
+    return json.dumps({"error": "Permission denied"})
+
+
 @app.route("/get-default-parameters/<key>", methods=["GET"])
 def get_default_parameters(key=None):
     if key == server.admin_key:
