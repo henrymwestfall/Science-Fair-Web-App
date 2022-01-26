@@ -2,3 +2,4 @@ flask
 flask-heroku
 networkx
 numpy
+scipy
