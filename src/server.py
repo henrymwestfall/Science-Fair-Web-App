@@ -143,7 +143,8 @@ class Server:
                 "params": self.active_simulation.params,
                 "step": self.active_simulation.step,
                 "ready": self.active_simulation.get_ready_agent_count(),
-                "agentData": agent_data
+                "agentData": agent_data,
+                "error": None
             }
         else:
             return {"error": "No active simulation"}

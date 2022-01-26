@@ -7,6 +7,19 @@ function toggleVisible(elemID) {
 }
 
 
+async function refresh() {
+    const simState = await JSON.parse(await (await fetch(`/simulation-state/${apiKey}`)).text())
+    
+    document.getElementById("sim-active").innerText = simState.error == null
+    updateAgentTable(simState)
+}
+
+
+function stop() {
+   window.open(`/past-simulations/${apiKey}`)
+}
+
+
 function updateAgentTable(state) {
     const table = document.getElementById("agent-table")
     const rows = Array.from(table.children).slice(1)
@@ -35,14 +48,6 @@ function updateStateNumbers() {
 }
 
 
-async function main() {
-    const simState = await JSON.parse(await (await fetch(`/simulation-state/${apiKey}`)).text())
-    updateAgentTable(simState)
-}
-
-
 window.onload = () => {
     stateNumbersDiv = document.getElementById("state-numbers")
-
-    window.setInterval(main, 500)
 }

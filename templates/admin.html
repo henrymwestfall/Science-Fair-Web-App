@@ -13,6 +13,9 @@
     <body>
         <div id="state-numbers"></div>
 
+        Simulation Active: <p id="sim-active">false</p>
+
+        <button onclick="refresh()">Refresh</button>
         <button onclick="toggleVisible('api-key-table')">Show API Key Table</button>
         <table id="agent-table">
             <tr>
@@ -24,5 +27,8 @@
                 <th>Last Belief State</th>
             </tr>
         </table>
+
+        <button onclick="stop()">End Simulation</button>
+        
     </body>
 </html>
