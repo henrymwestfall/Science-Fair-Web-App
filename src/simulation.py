@@ -137,9 +137,11 @@ class Simulation:
         """
         for agent in self.agents_by_id:
             followers = self.get_followers_of(agent)
+            original = agent.approval
             for f in followers:
                 if (f.next_expressed_belief_state == agent.expressed_belief_state).sum().item() >= self.num_issues / 2:
                     agent.approval += 1
+            agent.approval_change = agent.approval - original
             agent.prior_approvals.append(agent.approval)
 
 

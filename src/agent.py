@@ -13,6 +13,7 @@ class Agent:
 
         self.prior_approvals = []
         self.approval = 0
+        self.approval_change = 0
 
         # list of belief state expressions by step
         self.prior_belief_states = []

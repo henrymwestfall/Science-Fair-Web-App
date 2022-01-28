@@ -188,7 +188,7 @@ async function update() {
 
     checkReady()
 
-    likesCountP.innerHTML = `You have ${state.likes} likes!`
+    likesCountP.innerHTML = `You have ${state.likes} likes! (+${state.likeChange})`
     readyCountP.innerHTML = `${state.readyCount} of ${state.size} people are ready!`
 
     if (state.messages.length > 0) fillMessageTable(state.messages, state.issues)

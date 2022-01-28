@@ -99,6 +99,7 @@ class Server:
             return {
                 "error": None,
                 "likes": agent.approval,
+                "likeChange": agent.approval_change,
                 "outDegree": self.active_simulation.feed_size,
                 "issues": self.active_simulation.issues,
                 "messages": agent.get_feed(),
