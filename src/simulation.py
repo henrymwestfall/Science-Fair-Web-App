@@ -138,8 +138,8 @@ class Simulation:
         for agent in self.agents_by_id:
             followers = self.get_followers_of(agent)
             for f in followers:
-                agent.approval += (f.next_expressed_belief_state == \
-                    agent.expressed_belief_state).sum().item()
+                if (f.next_expressed_belief_state == agent.expressed_belief_state).sum().item() >= self.num_issues / 2:
+                    agent.approval += 1
             agent.prior_approvals.append(agent.approval)
 
 

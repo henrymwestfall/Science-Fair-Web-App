@@ -129,7 +129,6 @@ function getIssueStringFromInts(issues, ints) {
 
 function fillMessageTable(messages, issues) {
     // messages is an array of message dictionaries
-    console.log(messages)
     for (let i = 0; i < messages.length; i++) {
         let c = i + 1
         let message = messages[i]

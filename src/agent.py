@@ -133,5 +133,4 @@ class Agent:
         if norm == 0 or not normalize:
             return state
         else:
-            print(norm)
             return state / norm
