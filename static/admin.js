@@ -12,6 +12,8 @@ async function refresh() {
     
     document.getElementById("sim-active").innerText = simState.error == null
     updateAgentTable(simState)
+
+    document.getElementById("step").innerHTML = simState.step
 }
 
 

@@ -170,17 +170,11 @@ function setAPIKey() {
 async function update() {
     const state = await JSON.parse(await (await fetch(`/state/${apiKey}`)).text())
 
-    if (state.team != null) {
-        let teamP = document.getElementById("team")
-        teamP.innerText = state.team[0]
-        teamP.style.color = state.team[1]
-        teamP.hidden = false
-    }
-
     if (!hasSetUpBeliefStateInputDiv) setUpBeliefStateInputDiv(state.issues)
     if (!hasSetUpFeedTableRows) setUpFeedTableRows(state.outDegree)
 
     if (state.step != step) {
+        document.getElementById("step").innerHTML = `Round ${state.step}`
         step = state.step
         document.getElementById("ready").checked = false
         uncheckAllUnfollowCheckboxes()
@@ -188,7 +182,7 @@ async function update() {
 
     checkReady()
 
-    likesCountP.innerHTML = `You have ${state.likes} likes! (+${state.likeChange})`
+    likesCountP.innerHTML = `You have ${state.likes} likes! (+${state.likeChange} last round)`
     readyCountP.innerHTML = `${state.readyCount} of ${state.size} people are ready!`
 
     if (state.messages.length > 0) fillMessageTable(state.messages, state.issues)
@@ -213,7 +207,6 @@ window.onload = () => {
     feedTable = document.getElementById("feed")
     beliefStateInputDiv = document.getElementById("belief-state-expression")
 
-    document.getElementById("team").hidden = true
     document.getElementById("ready").checked = false
 
     contentDiv.hidden = true
