@@ -71,7 +71,7 @@ class Network:
 
 
     def ego_graph(self, node: int, radius: int):
-        return nx.ego_graph(self.follow_graph, node, radius)
+        return nx.ego_graph(self.relation_graph, node, radius)
 
 
     def get_global_page_rank(self) -> dict:
