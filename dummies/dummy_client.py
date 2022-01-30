@@ -39,7 +39,7 @@ class DummyClient:
             # time.sleep(random.randint(self.wait_range.start, self.wait_range.stop))
             time.sleep(0.5)
             self.post("/send-actions", {
-                "message": expressed_state, "unfollows": []
+                "message": expressed_state, "follows": []
             })
 
 

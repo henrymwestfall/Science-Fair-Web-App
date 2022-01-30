@@ -28,8 +28,8 @@ def get_state(key=None):
 def send_actions(key=None):
     data = json.loads(request.form.get("data"))
     message = data.get("message")
-    unfollows = data.get("unfollows")
-    return json.dumps(server.receive_client_input(key, message, unfollows))
+    follows = data.get("follows")
+    return json.dumps(server.receive_client_input(key, message, follows))
 
 # # # # # # # # #
 # ADMIN  ROUTES #

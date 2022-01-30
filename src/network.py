@@ -1,4 +1,5 @@
 from copy import deepcopy
+import random
 import networkx as nx
 
 
@@ -26,6 +27,19 @@ class Network:
         self.default_edge = default_edge
         self.boosted_edge = boosted_edge
         self.suppressed_edge = suppressed_edge
+
+    
+    @staticmethod
+    def to_array(network: 'Network') -> 'list[list[int]]':
+        array = [[1 for _ in range(network.size)] for _ in range(network.size)]
+        
+        for i in network.nodes:
+            for j in network.nodes:
+                if i == j:
+                    continue
+                array[i][j] = network.relation_graph[i][j]["r"]
+
+        return array
 
 
     def suppress_edge(self, from_node: int, to_node: int) -> None:
@@ -65,7 +79,7 @@ class Network:
 
 
     def get_graph_state(self) -> nx.DiGraph:
-        return self.relation_graph.copy()
+        return Network.to_array(self)
 
     
     def generate_small_world(self, k: int, p: float, seed: int) -> None:

@@ -1,4 +1,5 @@
 import random
+import string
 import time
 import json
 from datetime import datetime
@@ -111,14 +112,14 @@ class Server:
             return {"error": "keyNotFound"}
 
 
-    def receive_client_input(self, key, message, unfollows) -> dict:
+    def receive_client_input(self, key, message, follows) -> dict:
         """
         Receive input from a client. This input should contain a message to
         send and a list of influencers to unfollow. The influencers should
         be identified by their names. (or IDs? TODO: figure this out)
         """
         self.send_message(key, message)
-        self.unfollow_influencers(key, unfollows)
+        self.update_relationships(key, follows)
         return {"error": None}
 
     
@@ -128,10 +129,26 @@ class Server:
             agent.express_belief_state(message)
 
 
-    def unfollow_influencers(self, key, influencer_ids=[]):
+    def unfollow_influencers(self, key, influencer_names=[]):
         agent = self.agents_by_key.get(key)
         if agent != None:
-            agent.influencer_to_unfollow = influencer_ids
+            for name in influencer_names:
+                in_id = self.active_simulation.agents_by_name[name].node_id
+                self.active_simulation.network.suppress_edge(agent.node_id, in_id)
+
+    
+    def follow_influencers(self, key, influencer_names=[]):
+        agent = self.agents_by_key.get(key)
+        if agent != None:
+            for name in influencer_names:
+                in_id = self.active_simulation.agents_by_name[name].node_id
+                self.active_simulation.network.boost_edge(agent.node_id, in_id)
+
+
+    def update_relationships(self, key: str, new_relationships: 'list[int]') -> None:
+        agent = self.agents_by_key.get(key)
+        if agent != None:
+            self.active_simulation.update_relationships(agent, new_relationships)
 
 
     def get_simulation_state(self) -> dict:

@@ -38,7 +38,7 @@ def send_plaintext_email(receiver_address, access_code):
     message["From"] = sender_address
     message["To"] = receiver_address
     message["Subject"] = "Your Access Code"
-    mail_content = f"Hello,\n\nYou're access code is {access_code}\n\nCheers,\nHenry"
+    mail_content = f"Hello,\n\nYour access code is {access_code}\n\nCheers,\nHenry"
     message.attach(MIMEText(mail_content, 'plain'))
 
     session = smtplib.SMTP("smtp.gmail.com", 587)

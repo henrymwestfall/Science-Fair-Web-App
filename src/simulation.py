@@ -144,6 +144,27 @@ class Simulation:
             agent.approval_change = agent.approval - original
             agent.prior_approvals.append(agent.approval)
 
+    
+    def update_relationships(self, agent: Agent, new_relationships: 'list[int]') -> None:
+        names = [m.author.name for m in agent.feed]
+
+        if len(names) == 0:
+            return
+
+        for new_rel, name in zip(new_relationships, names):
+            other_agent = self.agents_by_name.get(name)
+            if new_rel < 0:
+                self.network.suppress_edge(
+                    agent.node_id, other_agent.node_id
+                )
+                assert self.network.relation_graph[agent.node_id][other_agent.node_id]['r'] == self.network.suppressed_edge
+            elif new_rel > 0:
+                self.network.boost_edge(
+                    agent.node_id, other_agent.node_id
+                )
+                assert self.network.relation_graph[agent.node_id][other_agent.node_id]['r'] == self.network.boosted_edge
+
+
 
     def get_new_influencer_possibilities_and_weights(self, agent: Agent) -> tuple:
         # determine which agents can be selected as influencers and their weights
@@ -394,9 +415,5 @@ class Simulation:
                     ]
                 } for a in self.agents_by_id
             ],
-            "network-history": [{
-                "relation-graph-edges": list(
-                    n.edges(data=True)
-                )
-            } for n in self.network_history]
+            "network-history": self.network_history
         }

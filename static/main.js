@@ -13,6 +13,8 @@ var hasSetUpFeedTableRows = false
 
 var step = 0
 
+var follows = []
+
 
 function setUpBeliefStateInputDiv(issues) {
     for (let i = 0; i < issues.length; i++) {
@@ -44,7 +46,9 @@ function setUpBeliefStateInputDiv(issues) {
 
 
 function setUpFeedTableRows(count) {
-    const cols = ["User", "Latest Post", "Views", "See Less", "See More"]
+    const recommend = "Keep recommending user"
+    const reject = "Stop recommending user"
+    const cols = ["Latest Post", "Views", "User", recommend, reject]
 
     for (let i = 0; i < count + 1; i++) {
         let row = document.createElement("tr")
@@ -58,13 +62,19 @@ function setUpFeedTableRows(count) {
             if (i > 0) {
                 cell.id = `feed_row_${i}_${cols[c]}`
 
-                if (cols[c] == "See Less") {
+                if (cols[c] == reject) {
                     let unfollowBox = document.createElement("input")
+                    unfollowBox.addEventListener("change", (_) => {
+                        handleActionCheckboxChange("unfollow", i)
+                    })
                     unfollowBox.type = "checkbox"
                     unfollowBox.id = `unfollow_checkbox_${i}`
                     cell.appendChild(unfollowBox)
-                } else if (cols[c] == "See More") {
+                } else if (cols[c] == recommend) {
                     let followBox = document.createElement("input")
+                    followBox.addEventListener("change", (_) => {
+                        handleActionCheckboxChange("follow", i)
+                    })
                     followBox.type = "checkbox"
                     followBox.id = `follow_checkbox_${i}`
                     cell.appendChild(followBox)
@@ -78,6 +88,26 @@ function setUpFeedTableRows(count) {
     }
 
     hasSetUpFeedTableRows = true
+}
+
+
+function handleActionCheckboxChange(checkboxType, i) {
+    let checkboxID = `${checkboxType}_checkbox_${i}`
+    let otherID = (checkboxType == "follow" ? 
+        `unfollow_checkbox_${i}` : `follow_checkbox_${i}`)
+    let checkbox = document.getElementById(checkboxID)
+    let otherbox = document.getElementById(otherID)
+    if (checkbox.checked) {
+        otherbox.checked = false
+    }
+
+    if (document.getElementById(`follow_checkbox_${i}`).checked) {
+        follows[i - 1] = 1
+    } else if (document.getElementById(`unfollow_checkbox_${i}`).checked) {
+        follows[i - 1] = -1
+    } else {
+        follows[i - 1] = 0
+    }
 }
 
 
@@ -96,22 +126,37 @@ function getMessage() {
 }
 
 
-function getUnfollows() {
-    let unfollows = []
-    for (let i = 1; i < feedTable.children; i++) {
-        let unfollowCheckbox = document.getElementById(`unfollow_checkbox_${i}`)
-        let influencerNameElement = document.getElementById(`feed_row_${i}_User`)
-        let influencerName = influencerNameElement.innerText
-        if (unfollowCheckbox.checked) unfollows.push(influencerName)
-    }
+// function getUnfollows() {
+//     let unfollows = []
+//     for (let i = 1; i < feedTable.children; i++) {
+//         let unfollowCheckbox = document.getElementById(`unfollow_checkbox_${i}`)
+//         let influencerNameElement = document.getElementById(`feed_row_${i}_User`)
+//         let influencerName = influencerNameElement.innerText
+//         if (unfollowCheckbox.checked) unfollows.push(influencerName)
+//     }
 
-    return unfollows
-}
+//     return unfollows
+// }
+
+
+// function getFollows() {
+//     let follows = []
+//     for (let i = 1; i < feedTable.children; i++) {
+//         let followCheckbox = document.getElementById(`follow_checkbox_${i}`)
+//         let influencerNameElement = document.getElementById(`feed_row_${i}_User`)
+//         let influencerName = influencerNameElement.innerText
+//         if (followCheckbox.checked) follows.push(influencerName)
+//     }
+
+//     return follows
+// }
 
 
 function uncheckAllUnfollowCheckboxes() {
-    for (let i = 1; i < feedTable.children; i++) {
+    for (let i = 1; i < feedTable.children.length; i++) {
         document.getElementById(`unfollow_checkbox_${i}`).checked = false
+        document.getElementById(`follow_checkbox_${i}`).checked = false
+        follows = Array.from({length: follows.length}, (v, i) => 0)
     }
 }
 
@@ -142,11 +187,12 @@ function fillMessageTable(messages, issues) {
 
 function checkReady() {
     let readyElem = document.getElementById("ready")
+    console.log(follows)
     if (readyElem.checked) {
         let data = new FormData()
         data.append("data", JSON.stringify({
             "message": getMessage(),
-            "unfollows": getUnfollows()
+            "follows": follows
         }))
 
         fetch(`/send-actions/${apiKey}`, {
@@ -170,6 +216,10 @@ function setAPIKey() {
 async function update() {
     const state = await JSON.parse(await (await fetch(`/state/${apiKey}`)).text())
 
+    if (follows.length == 0) {
+        follows = Array.from({length: state.outDegree}, (v, i) => 0)
+    }
+
     if (!hasSetUpBeliefStateInputDiv) setUpBeliefStateInputDiv(state.issues)
     if (!hasSetUpFeedTableRows) setUpFeedTableRows(state.outDegree)
 
@@ -182,7 +232,7 @@ async function update() {
 
     checkReady()
 
-    likesCountP.innerHTML = `You have ${state.likes} likes! (+${state.likeChange} last round)`
+    likesCountP.innerHTML = `You've gotten ${state.likes} total likes! (+${state.likeChange} last round)`
     readyCountP.innerHTML = `${state.readyCount} of ${state.size} people are ready!`
 
     if (state.messages.length > 0) fillMessageTable(state.messages, state.issues)

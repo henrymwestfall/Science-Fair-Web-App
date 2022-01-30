@@ -109,7 +109,6 @@ def test_ideological_summary():
         # assert, allowing for slight error in float operations
         assert abs((actual - expected).sum()) < 0.01
 
-
 if __name__ == "__main__":
     for test_fnc in tests.values():
         test_fnc()
