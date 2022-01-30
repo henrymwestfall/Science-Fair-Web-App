@@ -33,9 +33,16 @@ class Simulation:
             self.rng
         )
         self.small_world_p = self.params["small world p"]
-        self.network.generate_small_world(
-            self.feed_size, self.small_world_p, self.seed
-        )
+        self.graph_type = self.params["graph type"]
+        
+        if self.graph_type == Network.SMALL_WORLD:
+            self.network.generate_small_world(
+                self.feed_size, self.small_world_p, self.seed
+            )
+        elif self.graph_type == Network.RANDOM:
+            self.network.generate_random_world(
+                self.feed_size, self.seed
+            )
         self.network_history = [self.network.get_graph_state()]
 
         self.fake_names = self.fake_name_generator()
@@ -56,7 +63,7 @@ class Simulation:
         # capital letters, excluding vowels
         alphabet = [chr(v) for v in range(65, 91) \
             if not chr(v) in ("A", "E", "I", "O", "U", "Y")]
-        issue_choices = self.rng.choice(alphabet, size=self.num_issues * 2, replace=False)
+        issue_choices = np.random.choice(alphabet, size=self.num_issues * 2, replace=False)
         issue = ["blank", "blank"]
         for stance in issue_choices:
             if issue[0] == "blank":

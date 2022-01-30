@@ -11,5 +11,6 @@
     "default edge weight": 0.2,
     "boosted edge weight": 0.9,
     "suppressed edge weight": 0.05,
-    "neighborhood radius": 2
+    "neighborhood radius": 2,
+    "graph type": 0
 }

@@ -187,7 +187,6 @@ function fillMessageTable(messages, issues) {
 
 function checkReady() {
     let readyElem = document.getElementById("ready")
-    console.log(follows)
     if (readyElem.checked) {
         let data = new FormData()
         data.append("data", JSON.stringify({

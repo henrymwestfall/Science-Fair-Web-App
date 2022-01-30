@@ -1,9 +1,13 @@
 from copy import deepcopy
 import random
 import networkx as nx
+import numpy as np
 
 
 class Network:
+    RANDOM = 0
+    SMALL_WORLD = 1
+
     def __init__(self, 
                  size: int, 
                  default_edge: float, 
@@ -97,6 +101,16 @@ class Network:
         for u in self.follow_graph.nodes:
             for v in self.follow_graph[u]:
                 self.boost_edge(u, v)
+
+
+    def generate_random_world(self, k: int, seed: int) -> None:
+        rng = np.random.default_rng(seed=seed)
+
+        for u in self.nodes:
+            possibilities = list(self.nodes)
+            possibilities.remove(u)
+            v = rng.choice(possibilities, replace=False)
+            self.boost_edge(u, v)
 
 
     def copy(self) -> 'Network':
