@@ -2,7 +2,7 @@ var contentDiv
 var apiKeyEnterDiv
 
 var likesCountP
-var readyCountP
+var timeAndReadyP
 var feedTable
 var beliefStateInputDiv
 
@@ -231,8 +231,22 @@ async function update() {
 
     checkReady()
 
+    let secondsLeft = Math.floor(state.stepEndTime - (new Date()).getTime() / 1000)
+    if (secondsLeft < 0) secondsLeft = 0
+
+    let secondsOnTime = secondsLeft % 60
+    let minutesLeft = (secondsLeft - secondsOnTime) / 60
+
+    let timeStr = ""
+    if (secondsOnTime < 10) {
+        timeStr = `${minutesLeft}:0${secondsOnTime}`
+    } else {
+        timeStr = `${minutesLeft}:${secondsOnTime}`
+    }
+
     likesCountP.innerHTML = `You've gotten ${state.likes} total likes! (+${state.likeChange} last round)`
-    readyCountP.innerHTML = `${state.readyCount} of ${state.size} people are ready!`
+    timeAndReadyP.innerHTML = `${timeStr} remaining in this round!
+                                ${state.readyCount} of ${state.size} people are waiting for you.`
 
     if (state.messages.length > 0) fillMessageTable(state.messages, state.issues)
 }
@@ -252,7 +266,7 @@ window.onload = () => {
     apiKeyEnterDiv = document.getElementById("api-key-input")
 
     likesCountP = document.getElementById("likes-count")
-    readyCountP = document.getElementById("ready-count")
+    timeAndReadyP = document.getElementById("time-and-ready")
     feedTable = document.getElementById("feed")
     beliefStateInputDiv = document.getElementById("belief-state-expression")
 

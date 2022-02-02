@@ -106,6 +106,7 @@ class Server:
                 "messages": agent.get_feed(),
                 "step": self.active_simulation.step,
                 "readyCount": self.active_simulation.get_ready_agent_count(),
+                "stepEndTime": self.active_simulation.step_end_time,
                 "size": self.active_simulation.size
             }
         else:
@@ -163,6 +164,7 @@ class Server:
                 "step": self.active_simulation.step,
                 "ready": self.active_simulation.get_ready_agent_count(),
                 "agentData": agent_data,
+                "stepEndTime": self.active_simulation.step_end_time,
                 "error": None
             }
         else:

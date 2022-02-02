@@ -55,6 +55,8 @@ class Simulation:
         self.length = self.params["length"]
         self.step = 0
         self.max_step_time = self.params["round timer"]
+        self.step_start_time = -1
+        self.step_end_time = -1
 
         # randomly generate issues as pairs of letters
         self.num_issues = min(self.params["issues"], 13)
@@ -84,6 +86,9 @@ class Simulation:
     def run(self) -> None:
         """Run the simulation for a number of steps based on the length 
         attribute."""
+
+
+
         print("Starting simulation")
         for i in range(self.length):
             self.step = i
@@ -112,10 +117,29 @@ class Simulation:
         
         # wait for agents to express belief states
         print("Waiting for clients...")
-        start = time.time()
-        while self.get_ready_agent_count() < self.size:
+        self.step_start_time = time.time()
+        self.step_end_time = self.step_start_time + self.max_step_time
+        while self.get_ready_agent_count() < self.size \
+                and (time.time() <= self.step_end_time \
+                    or self.max_step_time == 0):
             time.sleep(0.1)
 
+        for agent in self.agents_by_id:
+            # agent was unreadied, make them express a random belief state
+            if not agent.ready:
+                if len(agent.prior_belief_states) > 0:
+                    b = agent.prior_belief_states[-1]
+                else:
+                    b = self.generate_random_belief_state()
+                
+                agent.express_belief_state(b)
+            
+            # forcefully unready agent for next round
+            agent.last_client_ready_post = 0
+
+    
+    def generate_random_belief_state(self) -> list:
+        return [np.random.choice((-1, 1)).item() for _ in self.issues]
 
     def sync_belief_states(self) -> None:
         for agent in self.agents_by_id:

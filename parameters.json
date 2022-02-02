@@ -2,7 +2,7 @@
     "name": "Default",
     "seed": 42,
     "size": 24,
-    "length": 20,
+    "length": 100,
     "issues": 8,
     "feed size": 4,
     "small world p": 0.33,
