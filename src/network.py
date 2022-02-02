@@ -19,6 +19,7 @@ class Network:
         self.nodes = range(size)
         self.relation_graph = nx.DiGraph()
         self.follow_graph = nx.DiGraph()
+        self.last_message_graph = nx.DiGraph()
         self.rng = rng
 
         self.relation_graph.add_nodes_from(self.nodes)
@@ -44,6 +45,10 @@ class Network:
                 array[i][j] = network.relation_graph[i][j]["r"]
 
         return array
+
+
+    def reset_last_message_graph(self):
+        self.last_message_graph = nx.DiGraph()
 
 
     def suppress_edge(self, from_node: int, to_node: int) -> None:
@@ -79,7 +84,9 @@ class Network:
 
     
     def get_local_page_rank(self, center_node: int, radius: int):
-        return nx.pagerank(self.ego_graph(center_node, radius))
+        personalization = {n: 0 for n in self.relation_graph.nodes}
+        personalization[center_node] = 1
+        return nx.pagerank(self.relation_graph, alpha=0.7, personalization=personalization)
 
 
     def get_graph_state(self) -> nx.DiGraph:
@@ -104,8 +111,6 @@ class Network:
 
 
     def generate_random_world(self, k: int, seed: int) -> None:
-        return
-
         rng = np.random.default_rng(seed=seed)
 
         for u in self.nodes:

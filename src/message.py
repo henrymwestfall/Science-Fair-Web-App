@@ -2,7 +2,12 @@ class Message:
     def __init__(self, author, message, views=0):
         self.author = author
         self.message = message
-        self.views = views
+        self.viewers = []
+
+
+    @property
+    def views(self) -> int:
+        return len(self.viewers)
 
     
     def to_dict(self) -> dict:

@@ -23,6 +23,7 @@ class Agent:
         self.next_expressed_belief_state = np.array([])
         self.feed = []
 
+        self.prior_message: Message = None
         self.message: Message = None
 
         self.see_more = set()
@@ -62,7 +63,7 @@ class Agent:
     
     def receive_message(self, message: Message) -> None:
         """Receive a message to the feed."""
-        message.views += 1
+        message.viewers.append(self)
         self.feed.append(message)
 
 
@@ -73,6 +74,7 @@ class Agent:
 
 
     def clear_message(self) -> None:
+        self.prior_message = self.message
         self.message = None
 
 

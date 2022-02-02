@@ -104,7 +104,7 @@ class Simulation:
     def process_step(self) -> None:
         if self.step != 0:
             print("Updating approvals...")
-            if self.step != 1: # expressed belief states don't exist yet
+            if self.step != 1: # expressed belief states don't exist at step 1
                 self.update_approvals()
                 
             print("Syncing belief states...")
@@ -185,9 +185,10 @@ class Simulation:
         belief as an influencer's prior belief state expression.
         """
         for agent in self.agents_by_id:
-            followers = self.get_followers_of(agent)
+            recvrs = self.network.last_message_graph.predecessors(agent.node_id)
             original = agent.approval
-            for f in followers:
+            for f_id in recvrs:
+                f = self.agents_by_id[f_id]
                 if (f.next_expressed_belief_state == agent.expressed_belief_state).sum().item() >= self.num_issues / 2:
                     agent.approval += 1
             agent.approval_change = agent.approval - original
@@ -206,12 +207,12 @@ class Simulation:
                 self.network.suppress_edge(
                     agent.node_id, other_agent.node_id
                 )
-                assert self.network.relation_graph[agent.node_id][other_agent.node_id]['r'] == self.network.suppressed_edge
+                # assert self.network.relation_graph[agent.node_id][other_agent.node_id]['r'] == self.network.suppressed_edge
             elif new_rel > 0:
                 self.network.boost_edge(
                     agent.node_id, other_agent.node_id
                 )
-                assert self.network.relation_graph[agent.node_id][other_agent.node_id]['r'] == self.network.boosted_edge
+                # assert self.network.relation_graph[agent.node_id][other_agent.node_id]['r'] == self.network.boosted_edge
 
 
 
@@ -347,15 +348,6 @@ class Simulation:
         self.network.boost_edge(agent_a.node_id, agent_b.node_id)
 
 
-    def update_agent_relations(self) -> None:
-        for agent in self.agents_by_id:
-            for influencer in agent.see_less:
-                self.suppress_edge(agent, influencer)
-
-            for influencer in agent.see_more:
-                self.boost_edge(agent, influencer)
-
-
     def get_edge_weight(self, 
                         from_agent: Agent, 
                         to_agent: Agent,
@@ -386,7 +378,7 @@ class Simulation:
         )
         neighborhood = sorted(list(pagerank.keys()))
         neighborhood.remove(agent.node_id)
-        w = {n: self.get_edge_weight(self.agents_by_id[n], agent, pagerank) \
+        w = {n: self.get_edge_weight(agent, self.agents_by_id[n], pagerank) \
             for n in neighborhood
         }
         sum_weight = sum(w.values())
@@ -395,9 +387,13 @@ class Simulation:
         for choice_id in np.random.choice(neighborhood, self.feed_size, p=p, replace=False):
             influencer = self.agents_by_id[choice_id.item()]
             agent.receive_message(influencer.get_message())
+            self.network.last_message_graph.add_edge(
+                agent.node_id, influencer.node_id
+            )
 
 
     def send_all_messages(self) -> None:
+        self.network.reset_last_message_graph()
         for agent in self.agents_by_id:
             self.build_feed_for(agent)
 
