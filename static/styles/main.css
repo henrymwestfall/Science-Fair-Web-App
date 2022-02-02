@@ -28,10 +28,20 @@ div {
     margin-top: 0.65rem;
 }
 
+span {
+    display: inline;
+    margin-inline: 0.2rem;
+}
+
 
 .flat-div {
     display: flex;
     justify-content: space-around;
+}
+
+
+.match {
+    color: #34b233;
 }
 
 

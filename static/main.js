@@ -21,6 +21,7 @@ function setUpBeliefStateInputDiv(issues) {
         let select = document.createElement("select")
         select.id = `issue_${i}`
         select.classList.add("issue")
+        select.onchange = `handleDropdownChange(${i})`
         select.name = select.id
 
         let optionElements = []
@@ -78,8 +79,11 @@ function setUpFeedTableRows(count) {
                     followBox.type = "checkbox"
                     followBox.id = `follow_checkbox_${i}`
                     cell.appendChild(followBox)
-                }
-                else cell.innerText = "___"
+                } else if (cols[c] == "Latest Post") {
+                    let messageDiv = document.createElement("div")
+                    messageDiv.id = `message_div_${i}`
+                    cell.appendChild(messageDiv)
+                } else cell.innerText = "___"
             }
             else cell.innerText = cols[c]
             row.appendChild(cell)
@@ -161,12 +165,11 @@ function uncheckAllUnfollowCheckboxes() {
 }
 
 
-function getIssueStringFromInts(issues, ints) {
-    let str = ""
+function getIssueArrayFromInts(issues, ints) {
+    let str = []
     for (let i = 0; i < issues.length; i++) {
-        if (ints[i] == -1) str += String(issues[i][0])
-        else str += String(issues[i][1])
-        str += "\t"
+        if (ints[i] == -1) str.push(String(issues[i][0]))
+        else str.push(String(issues[i][1]))
     }
     return str
 }
@@ -177,9 +180,31 @@ function fillMessageTable(messages, issues) {
     for (let i = 0; i < messages.length; i++) {
         let c = i + 1
         let message = messages[i]
-        getFeedTableCell("User", c).innerText = message["User"]
-        getFeedTableCell("Latest Post", c).innerText = getIssueStringFromInts(issues, 
+        
+        // update message
+        let messageArray = getIssueArrayFromInts(issues, 
             message["Latest Post"])
+        let messageDiv = document.getElementById(`message_div_${c}`)
+        for (let j = 0; j < messageArray.length; j++) {
+            if (messageDiv.children[j] == undefined) {
+                let child = document.createElement("span")
+                child.id = `message_${c}_issue_${j}`
+                messageDiv.appendChild(child)
+            }
+
+            let child = messageDiv.children[j]
+
+            let issueDropdown = document.getElementById(`issue_${j}`)
+            let expressedString = parseInt(issueDropdown.value) == -1 ? issues[j][0] : issues[j][1]
+            if (child.innerText == expressedString) {
+                child.classList.add("match")
+            }
+            else child.classList.remove("match")
+
+            child.innerText = messageArray[j]
+        }
+
+        getFeedTableCell("User", c).innerText = message["User"]
         getFeedTableCell("Views", c).innerText = message["Views"]
     }
 }
