@@ -90,3 +90,19 @@ def get_default_parameters(key=None):
         return json.dumps(server.default_parameters)
     else:
         return json.dumps({"error": "Permission denied"})
+
+
+@app.route("/pause-simulation/<key>", methods=["POST"])
+def pause_simulation(key=None):
+    if key == server.admin_key:
+        server.set_simulation_pause(True)
+        return json.dumps({"error": None})
+    return json.dumps({"error": "Permission denied"})
+
+
+@app.route("/resume-simulation/<key>", methods=["POST"])
+def resume_simulation(key=None):
+    if key == server.admin_key:
+        server.set_simulation_pause(False)
+        return json.dumps({"error": None})
+    return json.dumps({"error": "Permission denied"})

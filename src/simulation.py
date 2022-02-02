@@ -1,3 +1,4 @@
+from signal import pause
 import time
 from threading import Thread
 
@@ -55,8 +56,11 @@ class Simulation:
         self.length = self.params["length"]
         self.step = 0
         self.max_step_time = self.params["round timer"]
+        self.first_step_time = self.params["first round time"]
         self.step_start_time = -1
         self.step_end_time = -1
+        self.paused = self.params["start paused"]
+        self.pause_start = -1
 
         # randomly generate issues as pairs of letters
         self.num_issues = min(self.params["issues"], 13)
@@ -115,13 +119,26 @@ class Simulation:
                 agent.clear_message()
 
         
-        # wait for agents to express belief states
+        # wait for agents to express belief states or for timer to finish
         print("Waiting for clients...")
         self.step_start_time = time.time()
-        self.step_end_time = self.step_start_time + self.max_step_time
+
+        if self.step > 0:
+            self.step_end_time = self.step_start_time + self.max_step_time
+        else:
+            self.step_end_time = self.step_start_time + self.first_step_time
+
+        last_t = time.time()
+
         while self.get_ready_agent_count() < self.size \
-                and (time.time() <= self.step_end_time \
+                and ((t := time.time()) <= self.step_end_time \
                     or self.max_step_time == 0):
+
+            if self.paused:
+                self.step_end_time += t - last_t
+
+            last_t = t
+
             time.sleep(0.1)
 
         for agent in self.agents_by_id:
@@ -404,6 +421,7 @@ class Simulation:
     def get_agent_data_for_admin(self, agent: Agent) -> list:
         return [
             not agent.awaiting_client,
+            agent.ready,
             agent.node_id,
             agent.name,
             agent.approval,

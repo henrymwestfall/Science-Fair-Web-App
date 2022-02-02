@@ -77,6 +77,10 @@ class Server:
         if len(self.simulation_parameter_queue) > 0:
             self.start_simulation(self.simulation_parameter_queue.pop(0))
 
+
+    def set_simulation_pause(self, paused: bool) -> None:
+        self.active_simulation.paused = paused
+
     
     def get_client_api_key(self) -> str:
         """
@@ -162,6 +166,7 @@ class Server:
             return {
                 "params": self.active_simulation.params,
                 "step": self.active_simulation.step,
+                "paused": self.active_simulation.paused,
                 "ready": self.active_simulation.get_ready_agent_count(),
                 "agentData": agent_data,
                 "stepEndTime": self.active_simulation.step_end_time,

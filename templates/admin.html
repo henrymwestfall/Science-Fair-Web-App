@@ -13,15 +13,20 @@
     <body>
         <div id="state-numbers"></div>
 
-        Simulation Active: <p id="sim-active">false</p>
+        <p id="sim-active">Simulation Active: false</p>
+        <p id="sim-time">Step Time Left: 0:00</p>
         <p id="step">Step 0</p>
 
-        <button onclick="refresh()">Refresh</button>
-        <button onclick="toggleVisible('api-key-table')">Show API Key Table</button>
+        <button onclick="refresh()">Refresh Table</button>
+        <button onclick="toggleVisible('agent-table')">Show API Key Table</button>
+        <button id="pause" onclick="pauseSimulation(); refresh()">Pause</button>
+        <button id="resume" onclick="resumeSimulation(); refresh()">Resume</button>
+
         <table id="agent-table">
             <tr>
                 <th>API Key</th>
                 <th>In Use</th>
+                <th>Ready</th>
                 <th>Node ID</th>
                 <th>Name</th>
                 <th>Approval</th>
@@ -29,7 +34,7 @@
             </tr>
         </table>
 
-        <button onclick="stop()">End Simulation</button>
+        <button onclick="refresh(); stop()">End Simulation</button>
         
     </body>
 </html>

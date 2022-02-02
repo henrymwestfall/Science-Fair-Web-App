@@ -13,5 +13,7 @@
     "suppressed edge weight": 0.05,
     "neighborhood radius": 2,
     "graph type": 0,
-    "round timer": 60
+    "round timer": 60,
+    "first round time": 30,
+    "start paused": true
 }
