@@ -13,6 +13,7 @@ from src.network import Network
 class Simulation:
     def __init__(self, params):
         self.params = params
+        self.name = self.params["name"]
         self.seed = self.params["seed"]
         self.rng = np.random.default_rng(seed=self.seed)
 

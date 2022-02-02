@@ -3,7 +3,9 @@ import string
 import time
 import json
 from datetime import datetime
+from smtplib import SMTP, SMTPAuthenticationError
 
+from src.email_api import send_result, send_plaintext_email
 from src.simulation import Simulation
 
 
@@ -17,6 +19,7 @@ class Server:
         self.completed_simulations = []
 
         self.admin_key = "" # will be changed in deployed version
+        self.sender_pass = ""
         self.api_key_generator = self.get_new_api_key_generator()
         self.admin_key = next(self.api_key_generator)
         self.active_simulation: Simulation = None
@@ -26,6 +29,40 @@ class Server:
 
         with open("parameters.json", "r") as f:
             self.default_parameters = json.load(f)
+
+
+    def prompt_login(self) -> None:
+        try:
+            with open("password.txt") as f:
+                self.sender_pass = f.read()
+        except FileNotFoundError:
+            pass
+
+        valid = False
+        while not valid:
+            for _ in range(10):
+                session = SMTP('smtp.gmail.com', 587)
+                session.starttls()
+                try:
+                    session.login("henrywestfall.sciencefair@gmail.com", self.sender_pass)
+                    valid = True
+                    break
+                except SMTPAuthenticationError:
+                    print("Invalid password. Please try again.")
+
+                self.sender_pass = input("Enter the password for henrywestfall.sciencefair@gmail.com: ")
+            else:
+                print("You have reached the maximum number of login attempts. Try again after 10 minutes")
+                time.sleep(600)
+
+        send_plaintext_email(
+            "henrymwestfall@gmail.com", 
+            self.sender_pass, 
+            "Admin Access Code",
+            f"Admin Key: {self.admin_key}\nSetup: \
+            http://localhost:5000/simulation-setup/{self.admin_key} \
+            or https://science-fair-web-app.herokuapp.com/simulation-setup/{self.admin_key}"
+        )
 
     
     def get_new_api_key_generator(self, length=6):
@@ -68,6 +105,17 @@ class Server:
         self.completed_simulations.append(
             (str(datetime.now()), self.active_simulation)
         )
+
+        with open("latest_results.json", "w") as f:
+            json.dump(self.active_simulation.get_as_dict(), f)
+
+        send_result(
+            "henrymwestfall@gmail.com", 
+            self.sender_pass, 
+            "latest_results.json", 
+            self.active_simulation.name + ".json"
+        )
+
         self.api_key_generator = self.get_new_api_key_generator()
         self.agents_by_key = {}
 

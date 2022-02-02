@@ -4,7 +4,7 @@ from src.simulation import *
 from src.server import Server
 
 server = Server()
-print(f"Admin key: {server.admin_key}")
+server.prompt_login()
 
 app = Flask(__name__)
 

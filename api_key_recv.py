@@ -7,6 +7,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import numpy as np
 
+from src.email_api import send_plaintext_email
+
 
 url = input("URL: ")
 api_key = input("API key: ")
@@ -31,22 +33,10 @@ with open("password.txt", "r") as f:
     password = f.read()
 
 
-def send_plaintext_email(receiver_address, access_code):
-    sender_address = 'henrywestfall.sciencefair@gmail.com'
-
-    message = MIMEMultipart()
-    message["From"] = sender_address
-    message["To"] = receiver_address
-    message["Subject"] = "Your Access Code"
-    mail_content = f"Hello,\n\nYour access code is {access_code}\n\nCheers,\nHenry"
-    message.attach(MIMEText(mail_content, 'plain'))
-
-    session = smtplib.SMTP("smtp.gmail.com", 587)
-    session.starttls()
-    session.login(sender_address, password)
-    text = message.as_string()
-    session.sendmail(sender_address, receiver_address, text)
-
-
 for k, client_email in zip(keys, client_emails):
-    send_plaintext_email(client_email, k)
+    send_plaintext_email(
+        client_email, 
+        password,
+        "Your Access Code",
+        f"Hello,\n\nYour access code is {k}\n\nCheers,\nHenry"
+    )

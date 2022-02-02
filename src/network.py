@@ -104,6 +104,8 @@ class Network:
 
 
     def generate_random_world(self, k: int, seed: int) -> None:
+        return
+
         rng = np.random.default_rng(seed=seed)
 
         for u in self.nodes:
