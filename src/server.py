@@ -32,11 +32,8 @@ class Server:
 
 
     def prompt_login(self) -> None:
-        try:
-            with open("password.txt") as f:
-                self.sender_pass = f.read()
-        except FileNotFoundError:
-            pass
+        with open("password.txt") as f:
+            self.sender_pass = f.read()
 
         valid = False
         while not valid:
@@ -49,8 +46,6 @@ class Server:
                     break
                 except SMTPAuthenticationError:
                     print("Invalid password. Please try again.")
-
-                self.sender_pass = input("Enter the password for henrywestfall.sciencefair@gmail.com: ")
             else:
                 print("You have reached the maximum number of login attempts. Try again after 10 minutes")
                 time.sleep(600)
