@@ -75,7 +75,7 @@ class Network:
 
 
     def get_global_page_rank(self) -> dict:
-        return nx.pagerank(self.relation_graph)
+        return nx.pagerank(self.relation_graph, weight="r")
 
     
     def get_local_page_rank(self, center_node: int, radius: int):

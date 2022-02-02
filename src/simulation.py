@@ -54,7 +54,7 @@ class Simulation:
 
         self.length = self.params["length"]
         self.step = 0
-        self.min_step_time = 10 # seconds
+        self.max_step_time = self.params["round timer"]
 
         # randomly generate issues as pairs of letters
         self.num_issues = min(self.params["issues"], 13)
@@ -113,7 +113,7 @@ class Simulation:
         # wait for agents to express belief states
         print("Waiting for clients...")
         start = time.time()
-        while self.get_ready_agent_count() < self.size or time.time() - start < self.min_step_time:
+        while self.get_ready_agent_count() < self.size:
             time.sleep(0.1)
 
 
