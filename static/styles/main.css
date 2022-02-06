@@ -12,6 +12,11 @@ table, th, td {
     padding: 0.25rem;
 }
 
+div.message {
+    display: flex;
+    justify-content: space-around;
+}
+
 select {
     font-size: 2rem;
     padding: 0.5rem;
@@ -40,10 +45,13 @@ span {
     justify-content: space-around;
 }
 
+div.message > span {
+    color: #707070
+}
 
-.match {
-    color: #34b233;
-    font-size: 2rem;
+
+div.message > span.match {
+    color: #FF8AFF;
 }
 
 
@@ -71,4 +79,13 @@ span {
 
 #api-key-input button {
     font-size: inherit;
+}
+
+#likes-count {
+    background-color: #4AFF4A;
+}
+
+#likes-increase {
+    font-size: 1rem;
+    color: #22B322;
 }

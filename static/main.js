@@ -2,6 +2,7 @@ var contentDiv
 var apiKeyEnterDiv
 
 var likesCountP
+var likesIncreaseP
 var timeAndReadyP
 var feedTable
 var beliefStateInputDiv
@@ -81,6 +82,7 @@ function setUpFeedTableRows(count) {
                     cell.appendChild(followBox)
                 } else if (cols[c] == "Latest Post") {
                     let messageDiv = document.createElement("div")
+                    messageDiv.classList.add("message")
                     messageDiv.id = `message_div_${i}`
                     cell.appendChild(messageDiv)
                 } else cell.innerText = "___"
@@ -269,7 +271,8 @@ async function update() {
         timeStr = `${minutesLeft}:${secondsOnTime}`
     }
 
-    likesCountP.innerHTML = `You've gotten ${state.likes} total likes! (+${state.likeChange} last round)`
+    likesCountP.innerHTML = `You have ${state.likes} likes!`
+    likesIncreaseP.innerHTML = `+${state.likeChange} last round`
     timeAndReadyP.innerHTML = `${timeStr} remaining in this round!
                                 ${state.readyCount} of ${state.size} people are waiting for you.`
 
@@ -291,6 +294,7 @@ window.onload = () => {
     apiKeyEnterDiv = document.getElementById("api-key-input")
 
     likesCountP = document.getElementById("likes-count")
+    likesIncreaseP = document.getElementById("likes-increase")
     timeAndReadyP = document.getElementById("time-and-ready")
     feedTable = document.getElementById("feed")
     beliefStateInputDiv = document.getElementById("belief-state-expression")
